@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static',filename='user_dashboard.css')}}">
+    
+    <title>Dive</title>
+</head>
+<body class="anim-bg">
+
+    <div>
+        <div id="settings_dropdown">
+            <img class="settings-icon" id="settings_icon" src="https://icons.getbootstrap.com/assets/icons/sliders.svg"></img>
+            <div class="zone" id="settings_dropdown_content" hidden>
+                <br>
+                <br>
+                <button class="settings-btn" onclick="window.location.href='/revoke'">Log me out !</button>        
+            </div>
+        </div>
+    </div>
+
+
+    <div class="zone" id="main_zone">
+        {%for s in user_servers%}
+            <li onclick="window.location.href='/drive/{{s["id"]}}'" class="img-text server"><img widht="50px" height="50px" onclick="window.location.href='/drive/{{s["id"]}}'" src="{{s['icon_url']}}"></img>&nbsp;&nbsp;{{s["name"]}}</li>
+        {%endfor%}
+    </div>
+
+    <br>
+    <br>
+    <br>
+
+</body>
+
+<script src="{{url_for('static',filename='user_dashboard.js')}}"></script>
+
+</html>

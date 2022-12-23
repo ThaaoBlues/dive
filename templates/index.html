@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static',filename='index.css')}}">
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Dive">
+    <meta name="description" content="Dive is a discord bot that will create a cloud drive from medias sent on your server !">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://diveapp.ga/">
+    <meta property="og:title" content="Dive">
+    <meta property="og:description" content="Dive is a discord bot that will create a cloud drive from medias sent on your server !">
+    <meta property="og:image" content="">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://diveapp.ga/">
+    <meta property="twitter:title" content="Dive">
+    <meta property="twitter:description" content="Dive is a discord bot that will create a cloud drive from medias sent on your server !">
+    <meta property="twitter:image" content="">
+
+    <link rel="shortcut icon" href="/static/logo.svg" type="image/x-icon">
+
+
+    <title>Dive</title>
+</head>
+<body class="anim-bg">
+
+
+    <div class="zone txt-ctr">
+        <br>
+        <br>
+        <div class="title">Welcome to Dive !</div>
+        <img src="{{url_for('static',filename='logo.svg')}}">
+        <form id="search_form">
+            <input class="search-input" type="text" placeholder="Enter your server ID here :)">
+            <input type="submit" id="search_submit" style="display: none" />
+    
+        </form>
+        <br>
+        <div class="title-desc">Dive is the first platform to attach a drive to your discord server and boost your productivity to a whole new level !</div>
+        <div class="btn-row">
+            <button class="btn" onclick="window.location.href='https://discord.com/api/oauth2/authorize?client_id=1045642491585642537&permissions=3072&scope=bot'">Get Dive !</button>
+            <button class="btn ml" onclick="window.location.href='/login'">Log me in !</button>
+        </div>
+        <br>
+        <br>
+        <br>
+
+    </div>
+
+
+
+    <div class="zone txt-lft">
+        <h2 style="text-align: center;">Commands list :</h2>
+        <br>
+        <div class="ml">
+            <b>
+            <li>If the media is sent on the channel, no need to do anything. It will be detected by Dive :)</li>
+            <br>
+            <li>"!dhelp" : Dive will send you a list of commands available</li>
+            <br>
+            <li>"!durl" : Dive will send you the url to access your drive :D</li>
+            <br>
+            <li>"!dadd &lt;file_url&gt; &lt;file_name&gt;" : Dive will add this file to your drive as it was being sent on discord. Usefull to add files from others cloud provider like Google Drive or Onedrive.</li>
+            <br>
+            </b>
+        </div>
+
+    </div>
+
+<!--<p><a href="https://giphy.com/gifs/trippy-abstract-pi-slices-fwo7bzEVxbYS4eSNVd">Background gif from GIPHY</a><p>-->
+<!--"https://media3.giphy.com/media/fwo7bzEVxbYS4eSNVd/giphy.gif?cid=ecf05e47jzlrpzjt3tudz0twl8l7neqcih938ueqfy0yzypg&rid=giphy.gif&ct=g"-->
+</body>
+<script src="{{url_for('static',filename='index.js')}}"></script>
+
+</html>
+        

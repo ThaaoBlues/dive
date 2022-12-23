@@ -1,0 +1,5 @@
+discord
+flask
+pymongo[srv]
+python-dateutil
+flask_dance
