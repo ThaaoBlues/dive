@@ -7,7 +7,7 @@ From this, you can access any file that your shared on https://diveapp.ga
 Each file sent on Discord is stored into its cdn from 180 days so it will be available 180 days on our platfrom.
 We are working for a Google drive integration that could provide long-term storage.
 
-__
+___
 
 ## Commands list : 
 - If the media is sent on the channel, no need to do anything. It will be detected by Dive :)
@@ -20,4 +20,4 @@ __
 
 - For more informations, please visit https://diveapp.ga
 
-__
+___

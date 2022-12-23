@@ -11,6 +11,7 @@
 </head>
 <body class="anim-bg">
 
+    <h1 class="txt-ctr">Select one of your servers</h1>
     <div>
         <div id="settings_dropdown">
             <img class="settings-icon" id="settings_icon" src="https://icons.getbootstrap.com/assets/icons/sliders.svg"></img>
@@ -18,12 +19,15 @@
                 <br>
                 <br>
                 <button class="settings-btn" onclick="window.location.href='/revoke'">Log me out !</button>        
+                
             </div>
         </div>
     </div>
+    <br>
 
 
     <div class="zone" id="main_zone">
+        
         {%for s in user_servers%}
             <li onclick="window.location.href='/drive/{{s["id"]}}'" class="img-text server"><img widht="50px" height="50px" onclick="window.location.href='/drive/{{s["id"]}}'" src="{{s['icon_url']}}"></img>&nbsp;&nbsp;{{s["name"]}}</li>
         {%endfor%}

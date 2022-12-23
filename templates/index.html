@@ -35,19 +35,15 @@
     <div class="zone txt-ctr">
         <br>
         <br>
-        <div class="title">Welcome to Dive !</div>
-        <img src="{{url_for('static',filename='logo.svg')}}">
-        <form id="search_form">
-            <input class="search-input" type="text" placeholder="Enter your server ID here :)">
-            <input type="submit" id="search_submit" style="display: none" />
-    
-        </form>
-        <br>
+        <div class="title">
+            Welcome to Dive !        
+        </div>
         <div class="title-desc">Dive is the first platform to attach a drive to your discord server and boost your productivity to a whole new level !</div>
         <div class="btn-row">
             <button class="btn" onclick="window.location.href='https://discord.com/api/oauth2/authorize?client_id=1045642491585642537&permissions=3072&scope=bot'">Get Dive !</button>
             <button class="btn ml" onclick="window.location.href='/login'">Log me in !</button>
         </div>
+
         <br>
         <br>
         <br>
@@ -56,10 +52,10 @@
 
 
 
-    <div class="zone txt-lft">
+    <div class="zone">
         <h2 style="text-align: center;">Commands list :</h2>
         <br>
-        <div class="ml">
+        <div class="ml txt-lft">
             <b>
             <li>If the media is sent on the channel, no need to do anything. It will be detected by Dive :)</li>
             <br>
@@ -71,6 +67,8 @@
             <br>
             </b>
         </div>
+
+        <img style="text-align: center;" src="{{url_for('static',filename='logo.svg')}}">
 
     </div>
 
