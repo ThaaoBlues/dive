@@ -11,9 +11,24 @@
 <body>
 
     <div class="files-grid">
-        {%for media in medias%}
-            <a class="file-btn" href="{{media['media_url']}}">{{media["file_name"]}}</a>
-        {%endfor%}
+
+        <table class="files-table">
+            
+            <tbody>
+                <tr>
+                    <th>Icon</th>
+                    <th>File name</th>
+                </tr>
+                {%for media in medias%}
+                    <tr>
+                        <td><img class="file-btn" width="50" height="50" src="{{ url_for('static', filename='file-earmark.svg') }}" onclick="window.location.href='{{media['media_url']}}'" a></td>
+                        <td><a class="file-txt" href="{{media['media_url']}}">{{media["file_name"]}}</a></td>
+                    </tr>
+                {%endfor%}
+            </tbody>
+
+        </table>
+
     </div>
 
     <iframe class="iframe-preview" hidden></iframe>

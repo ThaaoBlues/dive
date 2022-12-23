@@ -21,17 +21,21 @@
 }
 
 .file-btn{
-
-    border-radius: 10px;
-    background-color: rgb(67, 71, 123);
+    margin-right: 50px;
+}
+.file-txt{
     font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 10px;
+    font-size: 20px;
     font-weight: bold;
-    padding: 20px 30px;
     color: black;
-    margin-right: 2%;
+    text-align: center;
+    margin-right: 50px;
 }
 
 .files-grid{
-    display: inline-flex;
+    max-width: 100%;
+}
+
+.files-table tr:nth-child(even) {
+    background-color: gray;
 }
