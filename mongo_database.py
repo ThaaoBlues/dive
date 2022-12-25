@@ -114,9 +114,9 @@ class DataBase():
         return json_data
 
 
-    def get_channel_medias(self,server_id:str,channel_name:str)->list:
+    def get_channel_medias(self,server_id:str,channel_name:str,limit=0)->list:
 
-        ret = self.db["medias"].find({"server_id":int(server_id),"channel_name":channel_name},projection={'_id':False})
+        ret = self.db["medias"].find({"server_id":int(server_id),"channel_name":channel_name},projection={'_id':False},limit=limit)
         ret = list(ret)
         json_data = loads(dumps(ret,default=str))
 

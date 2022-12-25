@@ -75,6 +75,10 @@ async def get_drive_url(ctx,*args):
 async def help_cmd(ctx):
     await ctx.channel.send(constants.bot_help["bot_help_msg"])
 
+@bot.command("dstat",help=constants.bot_help["dhelp"])
+async def help_cmd(ctx):
+    await ctx.channel.send(f"I'm currently active on {len(bot.guilds)} servers.")
+
 @bot.event
 async def on_message(msg):
     # detect if the message contains media
