@@ -133,7 +133,22 @@ def drive(server_id:str,channel_name:str):
 
 
     if channel_name:
-        return render_template("drive_channel.html",medias=db.get_channel_medias(server_id,channel_name))
+        # set a limit of files rendered to limit bandwith usage
+        # chunk of  10 files are displayed
+        # we can switch to next chunck on the table in the web page
+        
+        c_chunk=request.args.get('page',default=1,type=int)
+
+        # check if a cringe m@st3r h@x0r is not trying to put a negative number
+        c_chunk = 1 if c_chunk < 1 else c_chunk
+
+        limit = 10
+        
+        # define a starting point to skip the n precedent chunks
+        start = (c_chunk-1)*10
+        print(start)
+
+        return render_template("drive_channel.html",medias=db.get_channel_medias(server_id,channel_name,limit=limit,skip=start),c_chunk=c_chunk)
     
     # default drive page
     else:

@@ -114,12 +114,14 @@ class DataBase():
         return json_data
 
 
-    def get_channel_medias(self,server_id:str,channel_name:str,limit=0)->list:
+    def get_channel_medias(self,server_id:str,channel_name:str,limit=0,skip=0)->list:
+        
+        # sorting by decrementing id to we have the lastest objects first
+        sorting_order = [('_id',-1)]
 
-        ret = self.db["medias"].find({"server_id":int(server_id),"channel_name":channel_name},projection={'_id':False},limit=limit)
+        ret = self.db["medias"].find({"server_id":int(server_id),"channel_name":channel_name},projection={'_id':False},limit=limit,skip=skip,sort=sorting_order)
         ret = list(ret)
         json_data = loads(dumps(ret,default=str))
-
 
         return json_data
     

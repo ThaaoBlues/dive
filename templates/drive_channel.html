@@ -11,7 +11,11 @@
 <body>
 
     <div class="files-grid">
-
+        <div>
+            <button onclick="document.location.href = document.location.pathname+'?page='+'{% if c_chunk > 1 %}{{c_chunk-1}}{%else%}{{c_chunk}}{%endif%}'">Previous Page</button>
+            <button onclick="document.location.href = document.location.pathname+'?page='+'{{c_chunk+1}}'">Next Page</button>
+            <h3>Page : {{c_chunk}}</h3>
+        </div>
         <table class="files-table">
             
             <tbody>

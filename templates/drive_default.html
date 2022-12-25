@@ -15,9 +15,9 @@
     <div class="channels-grid">
         {%for channel_name in channels%}
         <div class="channel">
-            <a class="channel-btn" href="javascript:window.location.href = window.location.pathname+'/{{channel_name}}'"></a>
+            <a class="channel-btn" href="javascript:window.location.href = window.location.pathname+'/{{channel_name}}?page=1'"></a>
             <br>
-            <a class="channel-link" href="javascript:window.location.href = window.location.pathname+'/{{channel_name}}'">{{channel_name}}</a>
+            <a class="channel-link" href="javascript:window.location.href = window.location.pathname+'/{{channel_name}}?page=1'">{{channel_name}}</a>
         </div>
         {%endfor%}
     </div>
