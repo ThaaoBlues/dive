@@ -81,6 +81,21 @@ async def help_cmd(ctx):
 
 @bot.event
 async def on_message(msg):
+
+    # detect if a cloud provider url is present in the message
+    # to check this, we split the message by spaces
+    # and compare each word with the urls
+    for word in msg.content.split():
+
+        for provider in constants.DRIVE_PROVIDERS.keys():
+
+            for url in constants.DRIVE_PROVIDERS[provider]:
+                # match ?
+                if url in word:
+                    db.add_media(msg.guild.id,word,msg.channel.name,f"shared_from_{provider}")
+                    
+                    await msg.channel.send(f"J'enregistre ce media sur Dive : shared_from_{provider}\n Url Dive : {constants.ovh['server_url']}/drive/{msg.guild.id}")
+
     # detect if the message contains media
     if len(msg.attachments) > 0:
 
