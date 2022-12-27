@@ -109,6 +109,8 @@ class DataBase():
         ret = list(ret)
         ret = loads(dumps(ret,default=str))
 
+        print(ret)
+
         json_data = set([media["channel_name"] for media in ret])
 
         return json_data
