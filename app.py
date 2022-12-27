@@ -93,7 +93,7 @@ def login():
 @application.route("/revoke")
 def revoke():
 
-    if not discord.authorized:
+    """if not discord.authorized:
         return redirect("/")
     
     token = blueprint.token["access_token"]
@@ -108,9 +108,9 @@ def revoke():
 
     assert resp.ok, resp.text
 
-    del blueprint.token  # Delete OAuth token from storage
+    del blueprint.token  # Delete OAuth token from storage"""
+    return render_template("error.html",error_msg="Auto logout is not yet finished, you can still revoke access from your discord app !")
 
-    return redirect("/")
 
 
 #direct url to server's drive

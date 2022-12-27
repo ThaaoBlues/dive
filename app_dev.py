@@ -102,8 +102,8 @@ def revoke():
     assert resp.ok, resp.text
 
     del blueprint.token  # Delete OAuth token from storage"""
+    return render_template("error.html",error_msg="Auto logout is not yet finished, you can still revoke access from your discord app !")
 
-    return "<h1>Auto logout is not yet finished, you can still revoke access from your discord app !<h1>"
 
 
 #direct url to server's drive
