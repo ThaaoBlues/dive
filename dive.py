@@ -5,6 +5,7 @@ from discord.ext import commands
 
 import constants
 from mongo_database import DataBase
+from string import punctuation
 
 
 intents = Intents.default()
@@ -81,6 +82,10 @@ async def help_cmd(ctx):
 
 @bot.event
 async def on_message(msg):
+
+    # check if the message is not a command
+    if msg.content[0] in punctuation:
+        return
 
     # detect if a cloud provider url is present in the message
     # to check this, we split the message by spaces
