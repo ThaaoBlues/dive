@@ -92,3 +92,18 @@ body{
     height: 25px;
     border-radius: 5px;
 }
+.big-btn{
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: white;
+    width: 30%;
+    height: 80px;
+    background-color: rgba(200, 134, 181, 0.349);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.big-btn:hover{
+    background-color: rgba(58, 50, 131, 0.517);
+}
