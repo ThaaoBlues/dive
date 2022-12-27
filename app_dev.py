@@ -146,7 +146,6 @@ def drive(server_id:str,channel_name:str):
         
         # define a starting point to skip the n precedent chunks
         start = (c_chunk-1)*10
-        print(start)
 
         return render_template("drive_channel.html",medias=db.get_channel_medias(server_id,channel_name,limit=limit,skip=start),c_chunk=c_chunk)
     

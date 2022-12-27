@@ -1,3 +1,9 @@
+body{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
+    color: black;
+}
+
 .channel{
 
     margin-left: 2%;
