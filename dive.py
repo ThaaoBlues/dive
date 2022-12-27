@@ -85,7 +85,13 @@ async def on_message(msg):
 
     # check if the message is not a command
     if msg.content[0] in punctuation:
+        # INCLUDES THE COMMANDS FOR THE BOT. WITHOUT THIS LINE, YOU CANNOT TRIGGER YOUR COMMANDS.
+            
+        if msg.content.split()[0] in constants.discord["bot_commands"]:
+            await bot.process_commands(msg)
+            
         return
+
 
     # detect if a cloud provider url is present in the message
     # to check this, we split the message by spaces
@@ -114,8 +120,5 @@ async def on_message(msg):
             db.add_media(msg.guild.id,media.url,msg.channel.name,media.filename)
 
             await msg.channel.send(f"J'enregistre ce media sur Dive : {media.filename}\n Url Dive : {constants.ovh['server_url']}/drive/{msg.guild.id}")
-
-    # INCLUDES THE COMMANDS FOR THE BOT. WITHOUT THIS LINE, YOU CANNOT TRIGGER YOUR COMMANDS.
-    await bot.process_commands(msg)
 
 bot.run(constants.discord["bot_token"])
