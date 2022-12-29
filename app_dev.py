@@ -86,23 +86,25 @@ def login():
 @application.route("/revoke")
 def revoke():
 
-    """if not discord.authorized:
+    if not discord.authorized:
         return redirect("/")
     
     token = blueprint.token["access_token"]
     resp = discord.post(
         "https://discord.com/api/oauth2/token/revoke",
-        params={
+        data={
             "client_id":constants.discord["client_id"],
             "client_secret":constants.discord["client_secret"],
             "token": token},
         headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
 
-    assert resp.ok, resp.text
+    if not resp.ok or not resp.text:
+        return render_template("error.html",error_msg="Auto logout is not yet finished, you can still revoke access from your discord app !")
 
-    del blueprint.token  # Delete OAuth token from storage"""
-    return render_template("error.html",error_msg="Auto logout is not yet finished, you can still revoke access from your discord app !")
+    del blueprint.token  # Delete OAuth token from storage
+    
+    return redirect("/")
 
 
 
