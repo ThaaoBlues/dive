@@ -122,4 +122,8 @@ async def on_message(msg):
 
             await msg.channel.send(f"J'enregistre ce media sur Dive : {media.filename}\n Url Dive : {constants.ovh['server_url']}/drive/{msg.guild.id}")
 
+@bot.event
+async def on_guild_join(guild):
+    await guild.system_channel.send(constants.bot_help["welcome_msg"])
+
 bot.run(constants.discord["bot_token"])
