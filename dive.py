@@ -106,7 +106,7 @@ async def on_message(msg):
                 if url in word:
                     db.add_media(msg.guild.id,word,msg.channel.name,f"shared_from_{provider}")
                     
-                    await msg.channel.send(f"J'enregistre ce media sur Dive : shared_from_{provider}\n Url Dive : {constants.ovh['server_url']}/drive/{msg.guild.id}")
+                    await msg.channel.send(f"Saving this media into Dive : shared_from_{provider}\n Dive URL : {constants.ovh['server_url']}/drive/{msg.guild.id}")
 
     # detect if the message contains media
     if len(msg.attachments) > 0:
@@ -120,7 +120,7 @@ async def on_message(msg):
             # add this media to the medias table
             db.add_media(msg.guild.id,media.url,msg.channel.name,media.filename)
 
-            await msg.channel.send(f"J'enregistre ce media sur Dive : {media.filename}\n Url Dive : {constants.ovh['server_url']}/drive/{msg.guild.id}")
+            await msg.channel.send(f"Saving this media into Dive : {media.filename}\n Dive URL : {constants.ovh['server_url']}/drive/{msg.guild.id}")
 
 @bot.event
 async def on_guild_join(guild):
