@@ -42,7 +42,7 @@ class DataBase():
         
         # get the number of files with the same name already sent
         # to make versionning
-        count = self.db["medias"].find({"server_id":server_id,"channel_name":channel_name,"file_name":file_name},projection={'_id':True})
+        count = self.db["medias"].find({"server_id":int(server_id),"channel_name":channel_name,"file_name":file_name},projection={'_id':True})
         count = len(list(count))
 
         # check if we don't overpass version limit (30 copies by default)

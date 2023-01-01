@@ -30,7 +30,7 @@
                         <td><img class="file-btn" width="50" height="50" src="{{ url_for('static', filename='file-earmark.svg') }}" onclick="window.location.href='{{media['media_url']}}'" a></td>
                         <td><a class="file-txt" href="{{media['media_url']}}">{{media["file_name"]}}</a></td>
                         <td><b>{{media["date"].replace(" 00:00:00","")}}</b></td>
-                        <td><b>{{media["version"]}}</b></td>
+                        <td style="text-align: center;"><b>{{media["version"]}}</b></td>
                     </tr>
                 {%endfor%}
             </tbody>
