@@ -21,3 +21,14 @@ ___
 - For more informations, please visit https://diveapp.ga
 
 ___
+
+
+## What is coming next ?
+
+- better user interface on web app
+
+- file name edit
+
+- file delete
+
+- Google drive integration
