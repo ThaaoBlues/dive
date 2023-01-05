@@ -147,3 +147,22 @@ class DataBase():
 
         # 180 days lifespan of discord's cdn files is an average of 6 months
         self.db["medias"].delete_many({"date":date - relativedelta(months=6)})
+
+
+    def enqueue_file_update(self,file:dict):
+
+        """
+        this method will enqueue a file updated from Dive edit page
+        """
+
+        self.db["update_queue"].insert_one(file)
+
+    def check_update_queue(self)->list:
+        """
+        retrieve all update queue and delete its content right after
+        """
+        queue = self.db["update_queue"].find({})
+
+        self.db["update_queue"].delete_many({})
+
+        return queue

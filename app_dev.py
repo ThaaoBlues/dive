@@ -155,6 +155,59 @@ def drive(server_id:str,channel_name:str):
     else:
         return render_template("drive_default.html",channels=db.get_server_channels(server_id))
 
+
+
+
+@application.route("/edit/<server_id>/<channel_name>",methods=["GET","POST"])
+
+def edit_file(server_id,channel_name):
+    
+
+    if request.method == "GET":
+        # check server_id composition
+        try:
+            int(server_id)
+        except ValueError:
+            return render_template("error.html",error_msg="This server is not in our database, Please make sure that you interacted with Dive in the server.")
+
+
+        # check if a user is logged in
+        if not discord.authorized:
+            return redirect("/login")
+
+        # if a user is logged in, check that he's in the server
+        if not server_id in str(discord.get("/api/users/@me/guilds").json()):
+            return render_template("error.html",error_msg="Sorry, w've searched everywhere but you are not in this server !")
+
+        # check server id presence
+        if not db.server_registered(server_id):
+            return render_template("error.html",error_msg="This server is not in our database, Please make sure that you interacted with Dive in the server.")
+
+
+        file = {
+            "file_name" : request.form.get("file_name"),
+            "file_url" : request.form.get("file_url"),
+            "server_id" : server_id,
+            "channel_name" : channel_name
+        }
+
+        return render_template("edit.html",file=file)
+
+
+    elif request.method == "POST":
+        file = {
+            "file_name" : request.form.get("file_name"),
+            "file_content" : request.form.get("file_content"),
+            "server_id" : server_id,
+            "channel_name" : channel_name
+        }
+
+        db.enqueue_file_update(file)
+
+        return jsonify({"status":"OK","msg":"File update has been enqueued."})
+
+
+    
 @application.route("/informations")
 def info():
     return render_template("informations.html")

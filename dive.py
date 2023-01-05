@@ -2,11 +2,14 @@
 from discord import Intents
 # to detect commands
 from discord.ext import commands
+# to update files each 10 seconds
+from discord.ext.tasks import loop as d_task_loop
+from discord import File as DiscordFile
+from tempfile import TemporaryFile
 
 import constants
 from mongo_database import DataBase
 from string import punctuation
-
 
 intents = Intents.default()
 intents.message_content = True
@@ -125,5 +128,28 @@ async def on_message(msg):
 @bot.event
 async def on_guild_join(guild):
     await guild.system_channel.send(constants.bot_help["welcome_msg"])
+
+
+@d_task_loop(seconds=10.0)
+async def check_update_queue():
+    
+    for file in db.check_file_update_queue():
+
+        channel = bot.guilds.get(file["server_id"]).channels.get(file["channel_name"])
+    
+        await channel.send(f"{file['file_name']} as been updated from Dive.")
+        
+        tmp_file = TemporaryFile(file["new_content"])
+        await channel.send(file = DiscordFile(
+            tmp_file.read()
+            ))
+
+        tmp_file.close()
+
+@d_task_loop(hours=12.0)
+async def remove_old_data():
+    # removes all data that is more than 180 days old
+    db.delete_after_180_days()
+
 
 bot.run(constants.discord["bot_token"])
