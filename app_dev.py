@@ -155,6 +155,10 @@ def drive(server_id:str,channel_name:str):
     else:
         return render_template("drive_default.html",channels=db.get_server_channels(server_id))
 
+@application.route("/informations")
+def info():
+    return render_template("informations.html")
+
 
 @application.errorhandler(404)
 def not_found(err):
