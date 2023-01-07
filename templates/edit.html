@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='drive.css') }}">
+    <script src="{{ url_for('static', filename='drive.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js" integrity="sha512-YeeA/Qxn5hYdkukScTCNNOhTrv1C2RubAGButJ1rmgQwZf/HdRaCGl+JAVkqsqaNRaYNHdheiuKKuPf9mDcqKg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Dive/Edit file</title>
+</head>
+<body>
+    <button onclick="send_file_update()">Save file</button>
+    <input id="file_name" name="file_name" hidden value="{{file['file_name']}}">
+    <textarea id="file_content" class="auto-resize-textarea">
+        
+    </textarea>
+
+
+
+
+    <script>
+        const socket = io();
+
+        socket.emit("request_file_content",{"file_url":"{{file['file_url']}}"});
+
+        socket.on("file_content_loaded",function (data){
+
+            document.getElementById("file_content").innerText = data["file_content"];
+
+        });
+
+        socket.on("notify",function(data){
+            alert(data["msg"]);
+        });
+
+
+        function send_file_update(){
+            socket.emit('update_file_content',{{file | safe}});
+        }
+    </script>
+</body>
+
+
+</html>

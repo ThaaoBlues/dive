@@ -3,3 +3,5 @@ flask
 pymongo[srv]
 python-dateutil
 flask_dance
+flask_socketio
+gevent-websocket

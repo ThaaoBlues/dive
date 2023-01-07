@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='drive.css') }}">
     <script src="{{ url_for('static', filename='files_preview.js') }}"></script>
-    <title>Document</title>
+    <title>Dive/Channel content</title>
 </head>
 <body>
 
@@ -24,6 +24,7 @@
                     <th>File name</th>
                     <th>Upload date</th>
                     <th>File version</th>
+                    <th>Action</th>
                 </tr>
                 {%for media in medias%}
                     <tr>
@@ -31,6 +32,13 @@
                         <td><a class="file-txt" href="{{media['media_url']}}">{{media["file_name"]}}</a></td>
                         <td><b>{{media["date"].replace(" 00:00:00","")}}</b></td>
                         <td style="text-align: center;"><b>{{media["version"]}}</b></td>
+                        <td>
+                            <form action="/edit/{{media['server_id']}}/{{media['channel_name']}}">
+                                <input name="file_name" hidden value="{{media['file_name']}}">
+                                <input name="file_url" hidden value="{{media['media_url']}}">
+                                <button type="submit">Edit file</button>
+                            </form>
+                        </td>
                     </tr>
                 {%endfor%}
             </tbody>

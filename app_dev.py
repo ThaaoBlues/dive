@@ -1,8 +1,9 @@
-from flask import Flask, render_template, jsonify, request,redirect, url_for,send_from_directory
+from flask import Flask,Blueprint, render_template, jsonify, request,redirect, url_for,send_from_directory
 from mongo_database import DataBase
 from flask_dance.contrib.discord import discord, make_discord_blueprint
 import constants
-from os import path
+from flask_socketio import SocketIO
+from requests import get
 
 # for secret key
 from random import choices
@@ -11,6 +12,11 @@ from string import printable
 #ONLY FOR TESTING PURPOSES
 from os import environ
 environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+# for getting discord cdn files
+from flask_cors import CORS, cross_origin
+
+
 
 
 
@@ -26,7 +32,9 @@ application.wsgi_app = ProxyFix(
     application.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
 )
 
-blueprint = make_discord_blueprint(
+
+# discord oauth blueprint
+discord_blueprint = make_discord_blueprint(
     client_id=constants.discord["client_id"],
     client_secret=constants.discord["client_secret"],
     scope=["identify","guilds"],
@@ -34,9 +42,9 @@ blueprint = make_discord_blueprint(
 
 )
 
-application.register_blueprint(blueprint, url_prefix="/login")
+application.register_blueprint(discord_blueprint, url_prefix="/login")
 
-
+socketio = SocketIO(application)
 
 db = DataBase()
 
@@ -89,7 +97,7 @@ def revoke():
     if not discord.authorized:
         return redirect("/")
     
-    token = blueprint.token["access_token"]
+    token = discord_blueprint.token["access_token"]
     resp = discord.post(
         "https://discord.com/api/oauth2/token/revoke",
         data={
@@ -102,7 +110,7 @@ def revoke():
     if not resp.ok or not resp.text:
         return render_template("error.html",error_msg="Auto logout is not yet finished, you can still revoke access from your discord app !")
 
-    del blueprint.token  # Delete OAuth token from storage
+    del discord_blueprint.token  # Delete OAuth token from storage
     
     return redirect("/")
 
@@ -157,9 +165,7 @@ def drive(server_id:str,channel_name:str):
 
 
 
-
-@application.route("/edit/<server_id>/<channel_name>",methods=["GET","POST"])
-
+@application.route("/edit/<server_id>/<channel_name>")
 def edit_file(server_id,channel_name):
     
 
@@ -185,26 +191,14 @@ def edit_file(server_id,channel_name):
 
 
         file = {
-            "file_name" : request.form.get("file_name"),
-            "file_url" : request.form.get("file_url"),
+            "file_name" : request.args.get("file_name"),
+            "file_url" : request.args.get("file_url"),
             "server_id" : server_id,
             "channel_name" : channel_name
         }
 
         return render_template("edit.html",file=file)
 
-
-    elif request.method == "POST":
-        file = {
-            "file_name" : request.form.get("file_name"),
-            "file_content" : request.form.get("file_content"),
-            "server_id" : server_id,
-            "channel_name" : channel_name
-        }
-
-        db.enqueue_file_update(file)
-
-        return jsonify({"status":"OK","msg":"File update has been enqueued."})
 
 
     
@@ -217,5 +211,22 @@ def info():
 def not_found(err):
     return render_template("error.html",error_msg=f"Sorry, {request.base_url} is not on our website. But you can still go back and find what you've been searching for :D")
 
+
+# socketio events
+
+@socketio.on("request_file_content")
+def request_file_content(json):
+    socketio.emit("file_content_loaded",
+        {
+            "file_content":get(json["file_url"],allow_redirects=True).text
+        }
+    )
+
+@socketio.on("update_file_content")
+def uppdate_file_content(file):
+    file["server_id"] = int(file["server_id"])
+    db.enqueue_file_update(file)
+    socketio.emit("notify",{"msg":"File update has been enqueued."})
+
 if __name__ == "__main__":
-    application.run(debug=True)
+    socketio.run(application,debug=True)
