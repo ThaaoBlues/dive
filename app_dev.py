@@ -13,13 +13,6 @@ from string import printable
 from os import environ
 environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
-# for getting discord cdn files
-from flask_cors import CORS, cross_origin
-
-
-
-
-
 
 #init flask app
 application = Flask(__name__)

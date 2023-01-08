@@ -3,6 +3,8 @@ exec(open(this_file).read(), {'__file__': this_file})
 
 from flask import Flask, render_template, jsonify, request,redirect, url_for
 from mongo_database import DataBase
+from requests import get
+from flask_socketio import SocketIO
 
 from flask_dance.contrib.discord import discord, make_discord_blueprint
 import constants
@@ -23,7 +25,9 @@ application.wsgi_app = ProxyFix(
     application.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
 )
 
-blueprint = make_discord_blueprint(
+
+# discord oauth blueprint
+discord_blueprint = make_discord_blueprint(
     client_id=constants.discord["client_id"],
     client_secret=constants.discord["client_secret"],
     scope=["identify","guilds"],
@@ -31,9 +35,10 @@ blueprint = make_discord_blueprint(
 
 )
 
-application.register_blueprint(blueprint, url_prefix="/login")
+application.register_blueprint(discord_blueprint, url_prefix="/login")
 
-# init database handler
+socketio = SocketIO(application)
+
 db = DataBase()
 
 
@@ -44,8 +49,6 @@ def before_request():
         url = request.url.replace('http://', 'https://', 1)
         code = 301
         return redirect(url, code=code)
-
-
 
 
 #home
@@ -65,9 +68,9 @@ def login():
 
     if not resp.ok:
         return redirect(url_for("discord.login"))
-    
-    resp = resp.json()
 
+    resp = resp.json()
+    
     user = {
         "username" : resp["username"],
         "avatar" : resp["avatar"],
@@ -96,7 +99,7 @@ def revoke():
     if not discord.authorized:
         return redirect("/")
     
-    token = blueprint.token["access_token"]
+    token = discord_blueprint.token["access_token"]
     resp = discord.post(
         "https://discord.com/api/oauth2/token/revoke",
         data={
@@ -109,9 +112,10 @@ def revoke():
     if not resp.ok or not resp.text:
         return render_template("error.html",error_msg="Auto logout is not yet finished, you can still revoke access from your discord app !")
 
-    del blueprint.token  # Delete OAuth token from storage
+    del discord_blueprint.token  # Delete OAuth token from storage
     
     return redirect("/")
+
 
 
 #direct url to server's drive
@@ -162,10 +166,75 @@ def drive(server_id:str,channel_name:str):
         return render_template("drive_default.html",channels=db.get_server_channels(server_id))
 
 
+
+@application.route("/edit/<server_id>/<channel_name>")
+def edit_file(server_id,channel_name):
+    
+
+    if request.method == "GET":
+        # check server_id composition
+        try:
+            int(server_id)
+        except ValueError:
+            return render_template("error.html",error_msg="This server is not in our database, Please make sure that you interacted with Dive in the server.")
+
+
+        # check if a user is logged in
+        if not discord.authorized:
+            return redirect("/login")
+
+        # if a user is logged in, check that he's in the server
+        if not server_id in str(discord.get("/api/users/@me/guilds").json()):
+            return render_template("error.html",error_msg="Sorry, w've searched everywhere but you are not in this server !")
+
+        # check server id presence
+        if not db.server_registered(server_id):
+            return render_template("error.html",error_msg="This server is not in our database, Please make sure that you interacted with Dive in the server.")
+
+
+        file = {
+            "file_name" : request.args.get("file_name"),
+            "file_url" : request.args.get("file_url"),
+            "server_id" : server_id,
+            "channel_name" : channel_name
+        }
+
+        return render_template("edit.html",file=file)
+
+
+
+    
+@application.route("/informations")
+def info():
+    return render_template("informations.html")
+
+
 @application.errorhandler(404)
 def not_found(err):
     return render_template("error.html",error_msg=f"Sorry, {request.base_url} is not on our website. But you can still go back and find what you've been searching for :D")
 
 
+# socketio events
+
+@socketio.on("request_file_content")
+def request_file_content(json):
+
+    # check if file is from discord cdn to avoid csrf
+    if not str(json["file_url"]).startswith("https://cdn.discordapp.com/"):
+        socketio.emit("notify",{"msg":"You can't edit yet a file from another provider than discord cdn."})
+        return
+
+    socketio.emit("file_content_loaded",
+        {
+            "file_content":get(json["file_url"],allow_redirects=True).text
+        }
+    )
+
+@socketio.on("update_file_content")
+def uppdate_file_content(file):
+    file["server_id"] = int(file["server_id"])
+    db.enqueue_file_update(file)
+    socketio.emit("notify",{"msg":"File update has been enqueued."})
+
 if __name__ == "__main__":
-    application.run()
+    socketio.run(application,debug=True)
