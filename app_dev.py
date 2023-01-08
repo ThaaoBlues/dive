@@ -216,6 +216,12 @@ def not_found(err):
 
 @socketio.on("request_file_content")
 def request_file_content(json):
+
+    # check if file is from discord cdn to avoid csrf
+    if not "https://cdn.discordapp.com/" in json["file_url"]:
+        socketio.emit("notify",{"msg":"You can't edit yet a file from another provider than discord cdn."})
+        return
+        
     socketio.emit("file_content_loaded",
         {
             "file_content":get(json["file_url"],allow_redirects=True).text
