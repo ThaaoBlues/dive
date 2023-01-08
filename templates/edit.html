@@ -11,7 +11,7 @@
 <body>
 
     <button onclick="window.history.back()">Back to file list</button>
-    <button onclick="send_file_update()">Save file</button>
+    <button onclick="send_file_update()">Save file (Ctrl+S)</button>
     <input id="file_name" name="file_name" hidden value="{{file['file_name']}}">
     
     <textarea id="file_content" class="auto-resize-textarea"></textarea>
@@ -39,6 +39,26 @@
                 alert(response["msg"]);
             });
         }
+
+
+        // bind Ctrl+S to file update
+        window.addEventListener("keypress", function(e) {
+            if (e.ctrlKey == e.keyCode) {
+                e.preventDefault();
+                isCtrl = true;
+                console.log("zsdvfdf");
+            }
+
+
+            if (e.keyCode == 83 && isCtrl){
+                e.preventDefault();
+                // your save logic goes here
+                //isCtrl = false;
+                alert(1);
+            }
+
+        });
+        
     </script>
 </body>
 
