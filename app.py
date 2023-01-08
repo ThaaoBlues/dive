@@ -4,7 +4,6 @@ exec(open(this_file).read(), {'__file__': this_file})
 from flask import Flask, render_template, jsonify, request,redirect, url_for
 from mongo_database import DataBase
 from requests import get
-from flask_socketio import SocketIO
 
 from flask_dance.contrib.discord import discord, make_discord_blueprint
 import constants
@@ -37,7 +36,6 @@ discord_blueprint = make_discord_blueprint(
 
 application.register_blueprint(discord_blueprint, url_prefix="/login")
 
-socketio = SocketIO(application)
 
 db = DataBase()
 
@@ -226,10 +224,10 @@ def request_file_content():
     if not discord.authorized:
         return redirect("/login")
 
-    # if a user is logged in, check that he's in the server
-    if not file["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
-        return render_template("error.html",error_msg="Sorry, w've searched everywhere but you are not in this server !")
-
+    """    # if a user is logged in, check that he's in the server
+        if not file["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
+            return render_template("error.html",error_msg="Sorry, w've searched everywhere but you are not in this server !")
+    """
     # check server id presence
     if not db.server_registered(file["server_id"]):
         return render_template("error.html",error_msg="This server is not in our database, Please make sure that you interacted with Dive in the server.")
@@ -272,4 +270,4 @@ def uppdate_file_content():
 
 
 if __name__ == "__main__":
-    socketio.run(application,debug=True)
+    application.run(application,debug=True)
