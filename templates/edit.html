@@ -12,10 +12,8 @@
 <body>
     <button onclick="send_file_update()">Save file</button>
     <input id="file_name" name="file_name" hidden value="{{file['file_name']}}">
-    <textarea id="file_content" class="auto-resize-textarea">
-        
-    </textarea>
-
+    
+    <textarea id="file_content" class="auto-resize-textarea"></textarea>
 
 
 
@@ -25,9 +23,7 @@
         socket.emit("request_file_content",{"file_url":"{{file['file_url']}}"});
 
         socket.on("file_content_loaded",function (data){
-
-            document.getElementById("file_content").innerText = data["file_content"];
-
+            document.getElementById("file_content").value = data["file_content"].replace("\n","<br>");
         });
 
         socket.on("notify",function(data){

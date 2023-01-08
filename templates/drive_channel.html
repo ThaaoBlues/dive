@@ -38,7 +38,7 @@
                             <form action="/edit/{{media['server_id']}}/{{media['channel_name']}}">
                                 <input name="file_name" hidden value="{{media['file_name']}}">
                                 <input name="file_url" hidden value="{{media['media_url']}}">
-                                {%if "https://cdn.discordapp.com/" in file["media_url"]%}<button type="submit">Edit file</button>{%endif%}
+                                {%if media["media_url"].startswith("https://cdn.discordapp.com/")%}<button type="submit">Edit file</button>{%endif%}
                             </form>
                         </td>
                     </tr>
