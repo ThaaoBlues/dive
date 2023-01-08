@@ -214,27 +214,62 @@ def not_found(err):
     return render_template("error.html",error_msg=f"Sorry, {request.base_url} is not on our website. But you can still go back and find what you've been searching for :D")
 
 
-# socketio events
 
-@socketio.on("request_file_content")
-def request_file_content(json):
+# api endpoints
+
+@application.route("/api/request_file_content",methods=["POST"])
+def request_file_content():
+
+    file = request.json
+
+    # check if a user is logged in
+    if not discord.authorized:
+        return redirect("/login")
+
+    # if a user is logged in, check that he's in the server
+    if not file["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
+        return render_template("error.html",error_msg="Sorry, w've searched everywhere but you are not in this server !")
+
+    # check server id presence
+    if not db.server_registered(file["server_id"]):
+        return render_template("error.html",error_msg="This server is not in our database, Please make sure that you interacted with Dive in the server.")
+
 
     # check if file is from discord cdn to avoid csrf
-    if not str(json["file_url"]).startswith("https://cdn.discordapp.com/"):
-        socketio.emit("notify",{"msg":"You can't edit yet a file from another provider than discord cdn."})
-        return
+    if not str(file["file_url"]).startswith("https://cdn.discordapp.com/"):
+        return jsonify({"msg":"You can't edit yet a file from another provider than discord cdn."})
 
-    socketio.emit("file_content_loaded",
+
+    return jsonify(
         {
-            "file_content":get(json["file_url"],allow_redirects=True).text
+            "file_content":get(file["file_url"],allow_redirects=True).text
         }
     )
 
-@socketio.on("update_file_content")
-def uppdate_file_content(file):
+
+
+@application.route("/api/update_file_content",methods=["POST"])
+def uppdate_file_content():
+    # check if a user is logged in
+    if not discord.authorized:
+        return redirect("/login")
+
+    file = request.json
+
+    # if a user is logged in, check that he's in the server
+    if not file["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
+        return render_template("error.html",error_msg="Sorry, w've searched everywhere but you are not in this server !")
+
+    # check server id presence
+    if not db.server_registered(file["server_id"]):
+        return render_template("error.html",error_msg="This server is not in our database, Please make sure that you interacted with Dive in the server.")
+
     file["server_id"] = int(file["server_id"])
+
     db.enqueue_file_update(file)
-    socketio.emit("notify",{"msg":"File update has been enqueued."})
+    return jsonify({"msg":"File update has been enqueued."})
+
+
 
 if __name__ == "__main__":
     socketio.run(application,debug=True)

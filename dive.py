@@ -5,7 +5,7 @@ from discord.ext import commands
 # to update files each 10 seconds
 from discord.ext.tasks import loop as d_task_loop
 from discord import File as DiscordFile
-from tempfile import TemporaryFile
+from os import remove
 
 import constants
 from mongo_database import DataBase
@@ -129,22 +129,35 @@ async def on_message(msg):
 async def on_guild_join(guild):
     await guild.system_channel.send(constants.bot_help["welcome_msg"])
 
+@bot.event
+async def on_ready():
+    check_update_queue.start()
+    remove_old_data.start()
 
 @d_task_loop(seconds=10.0)
 async def check_update_queue():
     
-    for file in db.check_file_update_queue():
+    for file in db.check_update_queue():
+        guild = bot.get_guild(file["server_id"])
+        
+        channel = None
 
-        channel = bot.guilds.get(file["server_id"]).channels.get(file["channel_name"])
-    
+        for chan in guild.channels:
+            if chan.name == file["channel_name"]:
+                channel = chan
+            
         await channel.send(f"{file['file_name']} as been updated from Dive.")
         
-        tmp_file = TemporaryFile(file["new_content"])
-        await channel.send(file = DiscordFile(
-            tmp_file.read()
-            ))
+        with open(f"{file['file_name']}","w") as f:
 
-        tmp_file.close()
+            f.write(file["new_content"])
+
+        with open(f"{file['file_name']}","rb") as f:
+            await channel.send(file = DiscordFile(f,file['file_name']))
+        
+        remove(f"{file['file_name']}")
+    
+    db.delete_update_queue()
 
 @d_task_loop(hours=12.0)
 async def remove_old_data():

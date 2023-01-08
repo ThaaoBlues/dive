@@ -163,6 +163,15 @@ class DataBase():
         """
         queue = self.db["update_queue"].find({})
 
-        self.db["update_queue"].delete_many({})
+        queue = list(queue)
+        queue = loads(dumps(queue,default=str))
 
         return queue
+
+    def delete_update_queue(self):
+        
+        """
+        it's in the name
+        """
+
+        self.db["update_queue"].delete_many({})

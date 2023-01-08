@@ -30,7 +30,7 @@
 
         function send_file_update(){
             let file_json = {{file | safe}};
-            file_json["new_content"] = document.getElementById("new_content").innerText;
+            file_json["new_content"] = document.getElementById("file_content").value;
             send_event('/api/update_file_content',file_json,function(e){
                 console.log(this.responseText);
                 response = JSON.parse(this.responseText);

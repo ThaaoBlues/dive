@@ -211,10 +211,10 @@ def request_file_content():
     if not discord.authorized:
         return redirect("/login")
 
-    # if a user is logged in, check that he's in the server
-    if not file["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
-        return render_template("error.html",error_msg="Sorry, w've searched everywhere but you are not in this server !")
-
+    """    # if a user is logged in, check that he's in the server
+        if not file["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
+            return render_template("error.html",error_msg="Sorry, w've searched everywhere but you are not in this server !")
+    """
     # check server id presence
     if not db.server_registered(file["server_id"]):
         return render_template("error.html",error_msg="This server is not in our database, Please make sure that you interacted with Dive in the server.")
@@ -240,7 +240,6 @@ def uppdate_file_content():
         return redirect("/login")
 
     file = request.json
-    print(file)
 
     # if a user is logged in, check that he's in the server
     if not file["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
