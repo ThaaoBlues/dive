@@ -5,6 +5,7 @@ Once the bot is invited into your server,
 it will listen and register any media or share url from a drive provider you send into its database.
 From this, you can access any file that you sent on https://diveapp.ga
 Each file sent on Discord is stored into its cdn from 180 days so it will be available 180 days on our platfrom.
+All text based files sent on discord can be edited directly from diveapp.ga and Dive will make sure to update them via discord.
 We are working for a Google drive integration that could provide long-term storage.
 
 ___
