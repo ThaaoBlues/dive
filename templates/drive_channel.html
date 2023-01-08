@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='drive.css') }}">
     <script src="{{ url_for('static', filename='files_preview.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js" integrity="sha512-YeeA/Qxn5hYdkukScTCNNOhTrv1C2RubAGButJ1rmgQwZf/HdRaCGl+JAVkqsqaNRaYNHdheiuKKuPf9mDcqKg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{{ url_for('static', filename='drive.js') }}"></script>
 
     <title>Dive/Channel content</title>
 </head>
@@ -52,13 +52,7 @@
     </div>
 
     <script>
-
-        const socket = io();
         
-        socket.on("notify",function(data){
-            alert(data["msg"]);
-        });
-
     </script>
 </body>
 </html>
