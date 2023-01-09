@@ -4,6 +4,7 @@ exec(open(this_file).read(), {'__file__': this_file})
 from flask import Flask, render_template, jsonify, request,redirect, url_for
 from mongo_database import DataBase
 from requests import get
+from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
 from flask_dance.contrib.discord import discord, make_discord_blueprint
 import constants
@@ -62,7 +63,11 @@ def login():
     if not discord.authorized:
         return redirect(url_for("discord.login"))
     
-    resp = discord.get("/api/users/@me")
+    # for some reasons, sometimes a TokenExpiredError is thrown
+    try:
+        resp = discord.get("/api/users/@me")
+    except TokenExpiredError:
+        return redirect(url_for("discord.login"))
 
     if not resp.ok:
         return redirect(url_for("discord.login"))

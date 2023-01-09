@@ -3,6 +3,7 @@ from mongo_database import DataBase
 from flask_dance.contrib.discord import discord, make_discord_blueprint
 import constants
 from requests import get
+from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 
 # for secret key
 from random import choices
@@ -52,7 +53,12 @@ def login():
     if not discord.authorized:
         return redirect(url_for("discord.login"))
     
-    resp = discord.get("/api/users/@me")
+    # for some reasons, sometimes a TokenExpiredError is thrown
+    try:
+        resp = discord.get("/api/users/@me")
+    except TokenExpiredError:
+        return redirect(url_for("discord.login"))
+
 
     if not resp.ok:
         return redirect(url_for("discord.login"))
