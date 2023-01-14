@@ -7,32 +7,78 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='drive.css') }}">
     <script src="{{ url_for('static', filename='drive.js') }}"></script>
     <title>Dive/Edit file</title>
+    <style type="text/css" media="screen">
+        #editor { 
+            margin-top: 35px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+    </style>
 </head>
 <body>
 
     <button onclick="window.history.back()">Back to file list</button>
     <button onclick="send_file_update()">Save file (Ctrl+S)</button>
     <input id="file_name" name="file_name" hidden value="{{file['file_name']}}">
+    <select id="theme_select">
+        <option value="terminal" default>terminal</option>
+        <option value="twilight">twilight</option>
+        <option value="mono_industrial">mono_industrial</option>
+        <option value="merbivore_soft">merbivore_soft</option>
+        <option value="merbivore">merbivore</option>
+        <option value="nord_dark">nord_dark</option>
+        <option value="monokai">monokai</option>
+        <option value="kr_theme">kr_theme</option>
+        <option value="sqlserver">sqlserver</option>
+        <option value="tomorrow_night">tomorrow_night</option>
+        <option value="tomorrow_night_bright">tomorrow_night_bright</option>
+        <option value="tomorrow_night_eighties">tomorrow_night_eighties</option>
+        <option value="xcode" >XCode</option>
+        <option value="gob">green on black</option>
+        <option value="ambiance">ambiance</option>
+        <option value="gruvbox">gruvbox</option>
+        <option value="idle_fingers">idle_fingers</option>
+    </select>
+    <button onclick="set_theme()">set theme</button>
     
-    <textarea id="file_content" class="auto-resize-textarea"></textarea>
+    <!--<textarea id="file_content" class="auto-resize-textarea"></textarea>-->
 
+    <div id="editor"></div>
 
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ace.js" integrity="sha512-WYlXqL7GPpZL2ImDErTX0RMKy5hR17vGW5yY04p9Z+YhYFJcUUFRT31N29euNB4sLNNf/s0XQXZfzg3uKSoOdA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ext-modelist.min.js" integrity="sha512-eLnWwyo8+10FUmWGbZviLMhmvevH45+572B3Bf1gwullCjtgZff1yAXtM17v6F5e4zNw+8v7VbdQQa097xHpBw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
 
 
+        var editor = ace.edit("editor",{
+            useSoftTabs:true,
+            theme:"ace/theme/terminal",
+            fontSize:15
+        });
+
+        // tries to guess the right code highlighting mode
+        editor_mode_auto_set();
+
         send_event("/api/request_file_content",{"file_url":"{{file['file_url']}}","server_id":"{{file['server_id']}}"},
             function (e){
-                console.log(this.responseText);
                 data = JSON.parse(this.responseText);
-                document.getElementById("file_content").value = data["file_content"].replace("\n","<br>");
+                //document.getElementById("file_content").value = data["file_content"].replace("\n","<br>");
+                editor.setValue(data["file_content"]);
+
             }
         );
 
 
+
+
+
         function send_file_update(){
             let file_json = {{file | safe}};
-            file_json["new_content"] = document.getElementById("file_content").value;
+            //file_json["new_content"] = document.getElementById("file_content").value;
+            file_json["new_content"] = editor.getValue();
             send_event('/api/update_file_content',file_json,function(e){
                 console.log(this.responseText);
                 response = JSON.parse(this.responseText);
@@ -41,24 +87,31 @@
         }
 
 
-        // bind Ctrl+S to file update
-        window.addEventListener("keypress", function(e) {
-            if (e.ctrlKey == e.keyCode) {
-                e.preventDefault();
-                isCtrl = true;
-                console.log("zsdvfdf");
-            }
-
-
-            if (e.keyCode == 83 && isCtrl){
-                e.preventDefault();
-                // your save logic goes here
-                //isCtrl = false;
-                alert(1);
-            }
-
+        editor.commands.addCommand({
+            name: 'Save-Command',
+            bindKey: {win: 'Ctrl-S',  mac: 'Command-S'},
+            exec: function(editor) {
+                send_file_update();
+            },
+            readOnly: true, // false if this command should not apply in readOnly mode
+            // multiSelectAction: "forEach", optional way to control behavior with multiple cursors
+            // scrollIntoView: "cursor", control how cursor is scolled into view after the command
         });
+
+
+        function editor_mode_auto_set(){
+            var modelist = require("ace/ext/modelist");
+            var mode = modelist.getModeForPath("{{file["file_url"]}}").mode;
+            editor.session.setMode(mode);
+        }
         
+
+        function set_theme(){
+            var theme = document.getElementById("theme_select").value;
+            editor.setTheme("ace/theme/"+theme);
+        }
+
+
     </script>
 </body>
 
