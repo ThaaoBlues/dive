@@ -9,40 +9,43 @@
     <title>Dive/Edit file</title>
     <style type="text/css" media="screen">
         #editor { 
-            margin-top: 35px;
-            position: absolute;
-            top: 0;
+            position:absolute;
+            top:7%;
             right: 0;
             bottom: 0;
             left: 0;
         }
     </style>
 </head>
-<body>
+<body class="anim-bg">
 
-    <button onclick="window.history.back()">Back to file list</button>
-    <button onclick="send_file_update()">Save file (Ctrl+S)</button>
-    <input id="file_name" name="file_name" hidden value="{{file['file_name']}}">
-    <select id="theme_select">
-        <option value="terminal" default>terminal</option>
-        <option value="twilight">twilight</option>
-        <option value="mono_industrial">mono_industrial</option>
-        <option value="merbivore_soft">merbivore_soft</option>
-        <option value="merbivore">merbivore</option>
-        <option value="nord_dark">nord_dark</option>
-        <option value="monokai">monokai</option>
-        <option value="kr_theme">kr_theme</option>
-        <option value="sqlserver">sqlserver</option>
-        <option value="tomorrow_night">tomorrow_night</option>
-        <option value="tomorrow_night_bright">tomorrow_night_bright</option>
-        <option value="tomorrow_night_eighties">tomorrow_night_eighties</option>
-        <option value="xcode" >XCode</option>
-        <option value="gob">green on black</option>
-        <option value="ambiance">ambiance</option>
-        <option value="gruvbox">gruvbox</option>
-        <option value="idle_fingers">idle_fingers</option>
-    </select>
-    <button onclick="set_theme()">set theme</button>
+    <div class="zone navbar">
+        <button onclick="window.history.back()">Back to file list</button>
+        <button onclick="send_file_update()">Save file (Ctrl+S)</button>
+        <input id="file_name" name="file_name" hidden value="{{file['file_name']}}">
+        <select id="theme_select">
+            <option value="merbivore_soft" default>merbivore_soft</option>
+            <option value="terminal">terminal</option>
+            <option value="twilight">twilight</option>
+            <option value="mono_industrial">mono_industrial</option>
+            <option value="merbivore">merbivore</option>
+            <option value="nord_dark">nord_dark</option>
+            <option value="monokai">monokai</option>
+            <option value="kr_theme">kr_theme</option>
+            <option value="sqlserver">sqlserver</option>
+            <option value="tomorrow_night">tomorrow_night</option>
+            <option value="tomorrow_night_bright">tomorrow_night_bright</option>
+            <option value="tomorrow_night_eighties">tomorrow_night_eighties</option>
+            <option value="xcode" >XCode</option>
+            <option value="gob">green on black</option>
+            <option value="ambiance">ambiance</option>
+            <option value="gruvbox">gruvbox</option>
+            <option value="idle_fingers">idle_fingers</option>
+        </select>
+        <button onclick="set_theme()">set theme</button>
+    </div>
+
+    
     
     <!--<textarea id="file_content" class="auto-resize-textarea"></textarea>-->
 
@@ -54,8 +57,7 @@
 
 
         var editor = ace.edit("editor",{
-            useSoftTabs:true,
-            theme:"ace/theme/terminal",
+            theme:"ace/theme/merbivore_soft",
             fontSize:15
         });
 
