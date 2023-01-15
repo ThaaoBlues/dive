@@ -7,12 +7,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='drive.css') }}">
     <title>Dive/Drive</title>
 </head>
-<body>
+<body class="anim-bg">
     
 
-    <button onclick="document.location.href='/login'">My servers</button>
-    <br>
-    <div class="channels-grid">
+    <div class="navbar zone">
+        <button onclick="document.location.href='/login'">Go back to servers list</button>
+    </div>
+    
+    <div class="channels-grid zone">
             
         {%for channel_name in channels%}
         <div class="channel">

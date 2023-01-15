@@ -11,11 +11,13 @@
     crossorigin="anonymous"></script>
     <title>Dive/Channel content</title>
 </head>
-<body>
+<body class="anim-bg">
 
-    <button onclick="window.history.back()">Back to channels list</button>
+    <div class="navbar zone">
+        <button onclick="window.history.back()">Back to channels list</button>
+    </div>
 
-    <div class="files-grid">
+    <div class="files-grid zone">
         <div>
             <button onclick="document.location.href = document.location.pathname+'?page='+'{% if c_chunk > 1 %}{{c_chunk-1}}{%else%}{{c_chunk}}{%endif%}'">Previous Page</button>
             <button onclick="document.location.href = document.location.pathname+'?page='+'{{c_chunk+1}}'">Next Page</button>

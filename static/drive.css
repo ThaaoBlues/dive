@@ -24,6 +24,7 @@ body{
 .channel-link{
     font-size: 30px;
     margin-left: 20px;
+    color: black;
 }
 .channel-btn::after{
     content: url("folder.svg");
@@ -51,7 +52,7 @@ body{
 }
 
 .files-table tr:nth-child(even) {
-    background-color: gray;
+    background-color: rgb(38, 71, 102);
 }
 
 
