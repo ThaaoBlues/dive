@@ -257,6 +257,16 @@ def uppdate_file_content():
 
     file["server_id"] = int(file["server_id"])
 
+    # add username to file modification so the bot can say who has done it
+    # into the channel
+        # for some reasons, sometimes a TokenExpiredError is thrown
+    try:
+        resp = discord.get("/api/users/@me").json()
+    except TokenExpiredError:
+        return redirect(url_for("discord.login"))
+
+    file["user_id"] = resp["id"]
+
     db.enqueue_file_update(file)
     return jsonify({"msg":"File update has been enqueued."})
 

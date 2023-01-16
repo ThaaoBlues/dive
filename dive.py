@@ -145,8 +145,8 @@ async def check_update_queue():
         for chan in guild.channels:
             if chan.name == file["channel_name"]:
                 channel = chan
-            
-        await channel.send(f"{file['file_name']} as been updated from Dive.")
+    
+        await channel.send(f"{file['file_name']} as been updated from Dive by <@{file['user_id']}>.")
         
         with open(f"{file['file_name']}","w") as f:
 
