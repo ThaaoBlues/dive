@@ -25,11 +25,4 @@ ___
 
 
 ## What is coming next ?
-
-- better user interface on web app
-
-- file name edit
-
-- file delete
-
-- Google drive integration
+- I'm into a big reflexion on how to make a realtime-like file edition like in google drive

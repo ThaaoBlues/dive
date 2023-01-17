@@ -175,3 +175,13 @@ class DataBase():
         """
 
         self.db["update_queue"].delete_many({})
+
+
+    def delete_media(self,media_url:str,version:int):
+
+        self.db["medias"].delete_one(
+            {
+                "media_url":media_url,
+                "version":version
+            }
+        )

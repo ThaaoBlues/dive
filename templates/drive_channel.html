@@ -34,17 +34,23 @@
                     <th>Action</th>
                 </tr>
                 {%for media in medias%}
-                    <tr>
+                    <tr id="media_entry_{{loop.index}}">
                         <td><img class="file-btn" width="50" height="50" src="{{ url_for('static', filename='file-earmark.svg') }}" onclick="window.location.href='{{media['media_url']}}'" a></td>
                         <td><a class="file-txt" href="{{media['media_url']}}">{{media["file_name"]}}</a></td>
                         <td><b>{{media["date"].replace(" 00:00:00","")}}</b></td>
                         <td style="text-align: center;"><b>{{media["version"]}}</b></td>
                         <td>
-                            <form action="/edit/{{media['server_id']}}/{{media['channel_name']}}">
-                                <input name="file_name" hidden value="{{media['file_name']}}">
-                                <input name="file_url" hidden value="{{media['media_url']}}">
-                                {%if media["media_url"].startswith("https://cdn.discordapp.com/")%}<button type="submit">Edit file</button>{%endif%}
-                            </form>
+                            <div style="display: flex;">
+                                <form action="/edit/{{media['server_id']}}/{{media['channel_name']}}">
+                                    <input name="file_name" hidden value="{{media['file_name']}}">
+                                    <input name="file_url" hidden value="{{media['media_url']}}">
+                                    {%if media["media_url"].startswith("https://cdn.discordapp.com/")%}<button type="submit">Edit file</button>{%endif%}
+                                </form>
+                                
+                                <button onclick="delete_file('{{loop.index}}',{media_url:'{{media["media_url"]}}',version:{{media["version"]}},server_id:'{{media["server_id"]}}' });">Delete</button>
+    
+                            </div>
+
                         </td>
                     </tr>
                 {%endfor%}
@@ -66,5 +72,11 @@
         document.write('<scr' + 'ipt type="text/javascript" src="http' + (location.protocol === 'https:' ? 's' : '') + '://www.effectivecreativeformat.com/e5d1d86e1d34cd78c9a461f5aa8af03e/invoke.js"></scr' + 'ipt>');
     </script>
 
+    <script>
+        function delete_file(id,data){
+            send_event('/api/delete_media',data);
+            document.getElementById("media_entry_"+id).remove();
+        }
+    </script>
 </body>
 </html>
