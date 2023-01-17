@@ -130,7 +130,7 @@ def drive(server_id:str,channel_name:str):
     try:
         int(server_id)
     except ValueError:
-        return render_template("error.html",error_msg="This server is not in our database, Please make sure that you interacted with Dive in the server.")
+        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
 
 
     # check if a user is logged in
@@ -140,11 +140,11 @@ def drive(server_id:str,channel_name:str):
 
     # if a user is logged in, check that he's in the server
     if not server_id in str(discord.get("/api/users/@me/guilds").json()):
-        return render_template("error.html",error_msg="Sorry, w've searched everywhere but you are not in this server !")
+        return render_template("error.html",error_msg=constants.API_MSG["error"]["not_in_server"])
 
     # check server id presence
     if not db.server_registered(server_id):
-        return render_template("error.html",error_msg="This server is not in our database, Please make sure that you interacted with Dive in the server.")
+        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
 
 
     if channel_name:
@@ -174,35 +174,33 @@ def drive(server_id:str,channel_name:str):
 def edit_file(server_id,channel_name):
     
 
-    if request.method == "GET":
-        # check server_id composition
-        try:
-            int(server_id)
-        except ValueError:
-            return render_template("error.html",error_msg="This server is not in our database, Please make sure that you interacted with Dive in the server.")
+    # check server_id composition
+    try:
+        int(server_id)
+    except ValueError:
+        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
 
 
-        # check if a user is logged in
-        if not discord.authorized:
-            return redirect("/login")
+    # check if a user is logged in
+    if not discord.authorized:
+        return redirect("/login")
 
-        # if a user is logged in, check that he's in the server
-        if not server_id in str(discord.get("/api/users/@me/guilds").json()):
-            return render_template("error.html",error_msg="Sorry, w've searched everywhere but you are not in this server !")
+    # if a user is logged in, check that he's in the server
+    if not server_id in str(discord.get("/api/users/@me/guilds").json()):
+        return render_template("error.html",error_msg=constants.API_MSG["error"]["not_in_server"])
 
-        # check server id presence
-        if not db.server_registered(server_id):
-            return render_template("error.html",error_msg="This server is not in our database, Please make sure that you interacted with Dive in the server.")
+    # check server id presence
+    if not db.server_registered(server_id):
+        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
 
+    file = {
+        "file_name" : request.args.get("file_name"),
+        "file_url" : request.args.get("file_url"),
+        "server_id" : server_id,
+        "channel_name" : channel_name
+    }
 
-        file = {
-            "file_name" : request.args.get("file_name"),
-            "file_url" : request.args.get("file_url"),
-            "server_id" : server_id,
-            "channel_name" : channel_name
-        }
-
-        return render_template("edit.html",file=file)
+    return render_template("edit.html",file=file)
 
 
 
@@ -214,8 +212,7 @@ def info():
 
 @application.errorhandler(404)
 def not_found(err):
-    return render_template("error.html",error_msg=f"Sorry, {request.base_url} is not on our website. But you can still go back and find what you've been searching for :D")
-
+    return render_template("error.html",error_msg=constants.API_MSG["error"]["404"].format(request.base_url))
 
 
 # api endpoints
@@ -231,16 +228,16 @@ def request_file_content():
 
     """    # if a user is logged in, check that he's in the server
         if not file["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
-            return render_template("error.html",error_msg="Sorry, w've searched everywhere but you are not in this server !")
+            return render_template("error.html",error_msg=constants.API_MSG["error"]["not_in_server"])
     """
     # check server id presence
     if not db.server_registered(file["server_id"]):
-        return render_template("error.html",error_msg="This server is not in our database, Please make sure that you interacted with Dive in the server.")
+        return jsonify({"error":constants.API_MSG["error"]["server_not_registered"]})
 
 
     # check if file is from discord cdn to avoid csrf
     if not str(file["file_url"]).startswith("https://cdn.discordapp.com/"):
-        return jsonify({"msg":"You can't edit yet a file from another provider than discord cdn."})
+        return jsonify({"msg":constants.API_MSG["error"]["wrong_cloud_provider"]})
 
 
     return jsonify(
@@ -259,13 +256,13 @@ def uppdate_file_content():
 
     file = request.json
 
-    # if a user is logged in, check that he's in the server
+   # if a user is logged in, check that he's in the server
     if not file["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
-        return render_template("error.html",error_msg="Sorry, w've searched everywhere but you are not in this server !")
+        return jsonify({"error":constants.API_MSG["error"]["not_in_server"]})
 
     # check server id presence
     if not db.server_registered(file["server_id"]):
-        return render_template("error.html",error_msg="This server is not in our database, Please make sure that you interacted with Dive in the server.")
+        return jsonify({"error":constants.API_MSG["error"]["server_not_registered"]})
 
     file["server_id"] = int(file["server_id"])
 
@@ -280,7 +277,29 @@ def uppdate_file_content():
     file["user_id"] = resp["id"]
 
     db.enqueue_file_update(file)
-    return jsonify({"msg":"File update has been enqueued."})
+    return jsonify({"msg":constants.API_MSG["success"]["file_update"]})
+
+
+@application.route("/api/delete_media",methods=["POST"])
+def delete_media():
+
+    # check if a user is logged in
+    if not discord.authorized:
+        return redirect("/login")
+
+    media = request.json
+
+   # if a user is logged in, check that he's in the server
+    if not media["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
+        return jsonify({"error":constants.API_MSG["error"]["not_in_server"]})
+
+    # check server id presence
+    if not db.server_registered(media["server_id"]):
+        return jsonify({"error":constants.API_MSG["error"]["server_not_registered"]})
+
+    db.delete_media(media["media_url"],media["version"])
+
+    return jsonify({"msg":constants.API_MSG["success"]["file_delete"]})
 
 
 
