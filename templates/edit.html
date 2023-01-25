@@ -82,7 +82,6 @@
             //file_json["new_content"] = document.getElementById("file_content").value;
             file_json["new_content"] = editor.getValue();
             send_event('/api/update_file_content',file_json,function(e){
-                console.log(this.responseText);
                 response = JSON.parse(this.responseText);
                 alert(response["msg"]);
             });

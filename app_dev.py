@@ -1,4 +1,4 @@
-from flask import Flask,Blueprint, render_template, jsonify, request,redirect, url_for,send_from_directory
+from flask import Flask, render_template, jsonify, request,redirect, url_for,make_response
 from mongo_database import DataBase
 from flask_dance.contrib.discord import discord, make_discord_blueprint
 import constants
@@ -56,7 +56,7 @@ def login_check(server_id):
         return redirect("/login")
 
     # if a user is logged in, check that he's in the server
-    if not server_id in str(discord.get("/api/users/@me/guilds").json()):
+    if not server_id in request.cookies["user_servers"]:
         return render_template("error.html",error_msg=constants.API_MSG["error"]["not_in_server"])
 
     # check server id presence
@@ -71,9 +71,8 @@ def api_login_check(server_id:int):
     if not discord.authorized:
         return redirect("/login")
 
-
-   # if a user is logged in, check that he's in the server
-    if not server_id in str(discord.get("/api/users/@me/guilds").json()):
+    # if a user is logged in, check that he's in the server
+    if not server_id in request.cookies["user_servers"]:
         return jsonify({"error":constants.API_MSG["error"]["not_in_server"]})
 
     # check server id presence
@@ -123,6 +122,7 @@ def login():
 
     resp = discord.get("/api/users/@me/guilds").json()
     user_servers = []
+    cookie_user_servers = set()
     for s in resp:
         if db.server_registered(s["id"]):
             user_servers.append(
@@ -133,7 +133,12 @@ def login():
                 }
             )
 
-    return render_template("user_dashboard.html",user = user,user_servers = user_servers)
+            cookie_user_servers.add(s["id"])
+
+    # store user servers in cookies to make far less discord api requests
+    response = make_response(render_template("user_dashboard.html",user = user,user_servers = user_servers))
+    response.set_cookie("user_servers",str(cookie_user_servers))
+    return response
 
 
 @application.route("/revoke")
@@ -224,8 +229,9 @@ def server_settings(server_id):
     if login_error:
         return login_error
 
+    server={"server_id":server_id}
     
-    return render_template("server_settings.html")
+    return render_template("server_settings.html",server=server)
 
 
 
@@ -246,23 +252,9 @@ def request_file_content():
 
     file = request.json
 
-    # check if a user is logged in
-    if not discord.authorized:
-        return redirect("/login")
-
-    """    # if a user is logged in, check that he's in the server
-        if not file["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
-            return render_template("error.html",error_msg=constants.API_MSG["error"]["not_in_server"])
-    """
-    # check server id presence
-    if not db.server_registered(file["server_id"]):
-        return jsonify({"error":constants.API_MSG["error"]["server_not_registered"]})
-
-
-    # check if file is from discord cdn to avoid csrf
-    if not str(file["file_url"]).startswith("https://cdn.discordapp.com/"):
-        return jsonify({"msg":constants.API_MSG["error"]["wrong_cloud_provider"]})
-
+    login_error = api_login_check(str(file["server_id"]))
+    if login_error:
+        return login_error
 
     return jsonify(
         {
@@ -312,6 +304,39 @@ def delete_media():
     db.delete_media(media["media_url"],media["version"])
 
     return jsonify({"msg":constants.API_MSG["success"]["file_delete"]})
+
+
+@application.route("/api/get_server_infos",methods=["POST"])
+
+def get_server_infos():
+
+    server = request.json
+
+    login_error = api_login_check(server["server_id"])
+    if login_error:
+        return login_error
+
+    return jsonify(db.get_server_infos(server["server_id"]))
+
+
+
+@application.route("/api/set_server_infos",methods=["POST"])
+
+def set_server_infos():
+
+    server = request.json
+
+    login_error = api_login_check(str(server["server_id"]))
+    if login_error:
+        return login_error
+    
+    db.set_server_info(
+        server["server_id"],
+        "img_auto_save",
+        server["img_auto_save"]
+    )
+
+    return jsonify({"msg":constants.API_MSG["success"]["server_info_update"]})
 
 
 if __name__ == "__main__":

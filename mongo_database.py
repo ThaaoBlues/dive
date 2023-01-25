@@ -185,3 +185,17 @@ class DataBase():
                 "version":version
             }
         )
+
+
+    def get_server_infos(self,server_id:str):
+
+        server_id = int(server_id)
+
+        return self.db["servers"].find_one({"server_id":server_id},projection={'_id':False})
+
+
+    def set_server_info(self,server_id:str,key:str,value:str):
+
+        server_id = int(server_id)
+
+        self.db["servers"].update_one({"server_id":server_id},{"$set":{key:value}})

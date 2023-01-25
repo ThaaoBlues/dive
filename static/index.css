@@ -102,3 +102,15 @@ body{
     margin-top: 5%;
     margin-bottom: 30px;
 }
+
+.line{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+#img_auto_save_btn{
+    margin-top: 22px;
+    max-width: 30%;
+    max-height: 30px;
+}

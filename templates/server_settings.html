@@ -2,10 +2,55 @@
 
 
 {%block head%}
-
+<title>Dive/Server settings</title>
+<link rel="stylesheet" href="{{url_for('static',filename='index.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='drive.css') }}">
+<script src="{{url_for('static',filename='drive.js')}}"></script>
 {%endblock%}
 
 
 {%block body%}
+<div class="navbar zone">
+    <button onclick="document.location.href='/login'">Go back to servers list</button>
+</div>
+
+<div class="zone">
+    
+    <ul>
+        <li class="line">
+            <h2>Images auto saving :</h2>&nbsp;&nbsp;
+            <button onclick="change_img_auto_save_state();" id="img_auto_save_btn">Loading state...</button>
+        </li>
+    </ul>
+</div>
+
+<script>
+
+    var auto_save_state = false;
+    function get_img_auto_save_state(){
+        send_event("/api/get_server_infos",{server_id:"{{server['server_id']}}"},function (response){
+            console.log(this.responseText);
+            response = JSON.parse(this.responseText);
+            auto_save_state = response["img_auto_save"];
+            //set settings button text
+            var btn = document.getElementById("img_auto_save_btn");
+            if(auto_save_state){
+                btn.innerText = "Desactivate";
+            }else{
+                btn.innerText = "Activate";
+            }
+        });
+    }
+
+    // call function
+    get_img_auto_save_state();
+    function change_img_auto_save_state(){
+        send_event("/api/set_server_infos",{server_id:"{{server['server_id']}}",img_auto_save:!auto_save_state},function(response){
+            response = JSON.parse(this.responseText);
+            alert(response["msg"]);
+            document.location.reload();
+        });
+    }
+</script>
 
 {%endblock%}
