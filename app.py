@@ -1,7 +1,7 @@
 this_file = "venv/bin/activate_this.py"
 exec(open(this_file).read(), {'__file__': this_file})
 
-from flask import Flask, render_template, jsonify, request,redirect, url_for
+from flask import Flask, render_template, jsonify, request,redirect, url_for,make_response
 from mongo_database import DataBase
 from requests import get
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
@@ -50,6 +50,54 @@ def before_request():
         return redirect(url, code=code)
 
 
+
+# a function that makes all login and server-registration verifications
+def login_check(server_id):
+
+    # check server_id composition
+    try:
+        int(server_id)
+    except ValueError:
+        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
+
+
+    # check if a user is logged in
+    if not discord.authorized:
+        return redirect("/login")
+
+    # if a user is logged in, check that he's in the server
+    if not server_id in request.cookies["user_servers"]:
+        return render_template("error.html",error_msg=constants.API_MSG["error"]["not_in_server"])
+
+    # check server id presence
+    if not db.server_registered(server_id):
+        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
+
+    return None
+
+
+def api_login_check(server_id:int):
+    # check if a user is logged in
+    if not discord.authorized:
+        return redirect("/login")
+
+    # if a user is logged in, check that he's in the server
+    if not server_id in request.cookies["user_servers"]:
+        return jsonify({"error":constants.API_MSG["error"]["not_in_server"]})
+
+    # check server id presence
+    if not db.server_registered(server_id):
+        return jsonify({"error":constants.API_MSG["error"]["server_not_registered"]})
+
+    return None
+
+
+
+
+
+
+
+
 #home
 @application.route("/")
 def home():
@@ -69,6 +117,7 @@ def login():
     except TokenExpiredError:
         return redirect(url_for("discord.login"))
 
+
     if not resp.ok:
         return redirect(url_for("discord.login"))
 
@@ -83,6 +132,7 @@ def login():
 
     resp = discord.get("/api/users/@me/guilds").json()
     user_servers = []
+    cookie_user_servers = set()
     for s in resp:
         if db.server_registered(s["id"]):
             user_servers.append(
@@ -93,7 +143,12 @@ def login():
                 }
             )
 
-    return render_template("user_dashboard.html",user = user,user_servers = user_servers)
+            cookie_user_servers.add(s["id"])
+
+    # store user servers in cookies to make far less discord api requests
+    response = make_response(render_template("user_dashboard.html",user = user,user_servers = user_servers))
+    response.set_cookie("user_servers",str(cookie_user_servers))
+    return response
 
 
 @application.route("/revoke")
@@ -126,26 +181,9 @@ def revoke():
 @application.route("/drive/<server_id>/<channel_name>")
 def drive(server_id:str,channel_name:str):
 
-    # check server_id composition
-    try:
-        int(server_id)
-    except ValueError:
-        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
-
-
-    # check if a user is logged in
-    if not discord.authorized:
-        return redirect("/login")
-
-
-    # if a user is logged in, check that he's in the server
-    if not server_id in str(discord.get("/api/users/@me/guilds").json()):
-        return render_template("error.html",error_msg=constants.API_MSG["error"]["not_in_server"])
-
-    # check server id presence
-    if not db.server_registered(server_id):
-        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
-
+    login_error = login_check(server_id)
+    if login_error:
+        return login_error
 
     if channel_name:
         # set a limit of files rendered to limit bandwith usage
@@ -173,25 +211,9 @@ def drive(server_id:str,channel_name:str):
 @application.route("/edit/<server_id>/<channel_name>")
 def edit_file(server_id,channel_name):
     
-
-    # check server_id composition
-    try:
-        int(server_id)
-    except ValueError:
-        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
-
-
-    # check if a user is logged in
-    if not discord.authorized:
-        return redirect("/login")
-
-    # if a user is logged in, check that he's in the server
-    if not server_id in str(discord.get("/api/users/@me/guilds").json()):
-        return render_template("error.html",error_msg=constants.API_MSG["error"]["not_in_server"])
-
-    # check server id presence
-    if not db.server_registered(server_id):
-        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
+    login_error = login_check(server_id)
+    if login_error:
+        return login_error
 
     file = {
         "file_name" : request.args.get("file_name"),
@@ -210,9 +232,27 @@ def info():
     return render_template("informations.html")
 
 
+@application.route("/server_settings/<server_id>")
+def server_settings(server_id):
+
+    login_error = login_check(server_id)
+    if login_error:
+        return login_error
+
+    server={"server_id":server_id}
+    
+    return render_template("server_settings.html",server=server)
+
+
+
+
 @application.errorhandler(404)
 def not_found(err):
     return render_template("error.html",error_msg=constants.API_MSG["error"]["404"].format(request.base_url))
+
+
+
+
 
 
 # api endpoints
@@ -222,23 +262,9 @@ def request_file_content():
 
     file = request.json
 
-    # check if a user is logged in
-    if not discord.authorized:
-        return redirect("/login")
-
-    """    # if a user is logged in, check that he's in the server
-        if not file["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
-            return render_template("error.html",error_msg=constants.API_MSG["error"]["not_in_server"])
-    """
-    # check server id presence
-    if not db.server_registered(file["server_id"]):
-        return jsonify({"error":constants.API_MSG["error"]["server_not_registered"]})
-
-
-    # check if file is from discord cdn to avoid csrf
-    if not str(file["file_url"]).startswith("https://cdn.discordapp.com/"):
-        return jsonify({"msg":constants.API_MSG["error"]["wrong_cloud_provider"]})
-
+    login_error = api_login_check(str(file["server_id"]))
+    if login_error:
+        return login_error
 
     return jsonify(
         {
@@ -250,19 +276,14 @@ def request_file_content():
 
 @application.route("/api/update_file_content",methods=["POST"])
 def uppdate_file_content():
-    # check if a user is logged in
-    if not discord.authorized:
-        return redirect("/login")
 
     file = request.json
 
-   # if a user is logged in, check that he's in the server
-    if not file["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
-        return jsonify({"error":constants.API_MSG["error"]["not_in_server"]})
+    
+    login_error = api_login_check(file["server_id"])
+    if login_error:
+        return login_error
 
-    # check server id presence
-    if not db.server_registered(file["server_id"]):
-        return jsonify({"error":constants.API_MSG["error"]["server_not_registered"]})
 
     file["server_id"] = int(file["server_id"])
 
@@ -283,25 +304,50 @@ def uppdate_file_content():
 @application.route("/api/delete_media",methods=["POST"])
 def delete_media():
 
-    # check if a user is logged in
-    if not discord.authorized:
-        return redirect("/login")
-
     media = request.json
 
-   # if a user is logged in, check that he's in the server
-    if not media["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
-        return jsonify({"error":constants.API_MSG["error"]["not_in_server"]})
+    login_error = api_login_check(media["server_id"])
+    if login_error:
+        return login_error
 
-    # check server id presence
-    if not db.server_registered(media["server_id"]):
-        return jsonify({"error":constants.API_MSG["error"]["server_not_registered"]})
-
+  
     db.delete_media(media["media_url"],media["version"])
 
     return jsonify({"msg":constants.API_MSG["success"]["file_delete"]})
 
 
+@application.route("/api/get_server_infos",methods=["POST"])
+
+def get_server_infos():
+
+    server = request.json
+
+    login_error = api_login_check(server["server_id"])
+    if login_error:
+        return login_error
+
+    return jsonify(db.get_server_infos(server["server_id"]))
+
+
+
+@application.route("/api/set_server_infos",methods=["POST"])
+
+def set_server_infos():
+
+    server = request.json
+
+    login_error = api_login_check(str(server["server_id"]))
+    if login_error:
+        return login_error
+    
+    db.set_server_info(
+        server["server_id"],
+        "img_auto_save",
+        server["img_auto_save"]
+    )
+
+    return jsonify({"msg":constants.API_MSG["success"]["server_info_update"]})
+
 
 if __name__ == "__main__":
-    application.run(application,debug=True)
+    application.run(debug=True)
