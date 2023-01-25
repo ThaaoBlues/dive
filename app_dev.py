@@ -37,7 +37,56 @@ discord_blueprint = make_discord_blueprint(
 
 application.register_blueprint(discord_blueprint, url_prefix="/login")
 
+
 db = DataBase()
+
+
+# a function that makes all login and server-registration verifications
+def login_check(server_id):
+
+    # check server_id composition
+    try:
+        int(server_id)
+    except ValueError:
+        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
+
+
+    # check if a user is logged in
+    if not discord.authorized:
+        return redirect("/login")
+
+    # if a user is logged in, check that he's in the server
+    if not server_id in str(discord.get("/api/users/@me/guilds").json()):
+        return render_template("error.html",error_msg=constants.API_MSG["error"]["not_in_server"])
+
+    # check server id presence
+    if not db.server_registered(server_id):
+        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
+
+    return None
+
+
+def api_login_check(server_id:int):
+    # check if a user is logged in
+    if not discord.authorized:
+        return redirect("/login")
+
+
+   # if a user is logged in, check that he's in the server
+    if not server_id in str(discord.get("/api/users/@me/guilds").json()):
+        return jsonify({"error":constants.API_MSG["error"]["not_in_server"]})
+
+    # check server id presence
+    if not db.server_registered(server_id):
+        return jsonify({"error":constants.API_MSG["error"]["server_not_registered"]})
+
+    return None
+
+
+
+
+
+
 
 
 #home
@@ -117,26 +166,9 @@ def revoke():
 @application.route("/drive/<server_id>/<channel_name>")
 def drive(server_id:str,channel_name:str):
 
-    # check server_id composition
-    try:
-        int(server_id)
-    except ValueError:
-        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
-
-
-    # check if a user is logged in
-    if not discord.authorized:
-        return redirect("/login")
-
-
-    # if a user is logged in, check that he's in the server
-    if not server_id in str(discord.get("/api/users/@me/guilds").json()):
-        return render_template("error.html",error_msg=constants.API_MSG["error"]["not_in_server"])
-
-    # check server id presence
-    if not db.server_registered(server_id):
-        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
-
+    login_error = login_check(server_id)
+    if login_error:
+        return login_error
 
     if channel_name:
         # set a limit of files rendered to limit bandwith usage
@@ -164,25 +196,9 @@ def drive(server_id:str,channel_name:str):
 @application.route("/edit/<server_id>/<channel_name>")
 def edit_file(server_id,channel_name):
     
-
-    # check server_id composition
-    try:
-        int(server_id)
-    except ValueError:
-        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
-
-
-    # check if a user is logged in
-    if not discord.authorized:
-        return redirect("/login")
-
-    # if a user is logged in, check that he's in the server
-    if not server_id in str(discord.get("/api/users/@me/guilds").json()):
-        return render_template("error.html",error_msg=constants.API_MSG["error"]["not_in_server"])
-
-    # check server id presence
-    if not db.server_registered(server_id):
-        return render_template("error.html",error_msg=constants.API_MSG["error"]["server_not_registered"])
+    login_error = login_check(server_id)
+    if login_error:
+        return login_error
 
     file = {
         "file_name" : request.args.get("file_name"),
@@ -201,9 +217,26 @@ def info():
     return render_template("informations.html")
 
 
+@application.route("/server_settings/<server_id>")
+def server_settings(server_id):
+
+    login_error = login_check(server_id)
+    if login_error:
+        return login_error
+
+    
+    return render_template("server_settings.html")
+
+
+
+
 @application.errorhandler(404)
 def not_found(err):
     return render_template("error.html",error_msg=constants.API_MSG["error"]["404"].format(request.base_url))
+
+
+
+
 
 
 # api endpoints
@@ -241,19 +274,14 @@ def request_file_content():
 
 @application.route("/api/update_file_content",methods=["POST"])
 def uppdate_file_content():
-    # check if a user is logged in
-    if not discord.authorized:
-        return redirect("/login")
 
     file = request.json
 
-   # if a user is logged in, check that he's in the server
-    if not file["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
-        return jsonify({"error":constants.API_MSG["error"]["not_in_server"]})
+    
+    login_error = api_login_check(file["server_id"])
+    if login_error:
+        return login_error
 
-    # check server id presence
-    if not db.server_registered(file["server_id"]):
-        return jsonify({"error":constants.API_MSG["error"]["server_not_registered"]})
 
     file["server_id"] = int(file["server_id"])
 
@@ -274,20 +302,13 @@ def uppdate_file_content():
 @application.route("/api/delete_media",methods=["POST"])
 def delete_media():
 
-    # check if a user is logged in
-    if not discord.authorized:
-        return redirect("/login")
-
     media = request.json
 
-   # if a user is logged in, check that he's in the server
-    if not media["server_id"] in str(discord.get("/api/users/@me/guilds").json()):
-        return jsonify({"error":constants.API_MSG["error"]["not_in_server"]})
+    login_error = api_login_check(media["server_id"])
+    if login_error:
+        return login_error
 
-    # check server id presence
-    if not db.server_registered(media["server_id"]):
-        return jsonify({"error":constants.API_MSG["error"]["server_not_registered"]})
-
+  
     db.delete_media(media["media_url"],media["version"])
 
     return jsonify({"msg":constants.API_MSG["success"]["file_delete"]})
