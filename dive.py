@@ -77,7 +77,7 @@ async def get_drive_url(ctx,*args):
 
 @bot.command("dhelp",help=constants.bot_help["dhelp"])
 async def help_cmd(ctx):
-    await ctx.channel.send(constants.bot_help["bot_help_msg"])
+    await ctx.channel.send(constants.bot_help["bot_help_msg"].format(db.get_server_infos(ctx.guild.id)['img_auto_save']))
 
 @bot.command("dstat",help=constants.bot_help["dhelp"])
 async def help_cmd(ctx):
@@ -119,6 +119,12 @@ async def on_message(msg):
             # insert server into servers table if not already in it
             if not db.server_registered(msg.guild.id):
                 db.register_server(msg.guild.id,msg.guild.name)
+            
+            
+            # check if server has activated images auto save
+            if not db.get_server_infos(msg.guild.id)["img_auto_save"]:
+                if media.filename.split(".")[1] in constants.IMG_EXT:
+                    return
 
             # add this media to the medias table
             db.add_media(msg.guild.id,media.url,msg.channel.name,media.filename)
@@ -127,7 +133,7 @@ async def on_message(msg):
 
 @bot.event
 async def on_guild_join(guild):
-    await guild.system_channel.send(constants.bot_help["welcome_msg"])
+    await guild.system_channel.send(constants.bot_help["welcome_msg"].format(db.get_server_infos(guild.id)['img_auto_save']))
 
 @bot.event
 async def on_ready():
