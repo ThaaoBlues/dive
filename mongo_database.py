@@ -22,7 +22,8 @@ class DataBase():
         self.db["servers"].insert_one({
             "server_id":server_id,
             "server_name":server_name,
-            "date": date
+            "date": date,
+            "img_auto_save":True
         })
 
 
