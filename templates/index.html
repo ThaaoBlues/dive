@@ -1,11 +1,9 @@
+{%extends "structure/base.html" %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{%block head%}
     <link rel="stylesheet" href="{{url_for('static',filename='index.css')}}">
+    <script src="{{url_for('static',filename='index.js')}}"></script>
+
     <!-- Primary Meta Tags -->
     <meta name="title" content="Dive">
     <meta name="description" content="Dive is a discord bot that will create a cloud drive from medias sent on your server !">
@@ -26,9 +24,10 @@
 
     <link rel="shortcut icon" href="/static/logo.svg" type="image/x-icon">
     <title>Dive</title>
-</head>
-<body class="anim-bg">
+{%endblock%}
 
+
+{%block body%}
 
     <div class="zone txt-ctr">
         <br>
@@ -72,8 +71,6 @@
 
         <a href="/informations">Legal and usage informations</a>
     </div>
-</body>
-<script src="{{url_for('static',filename='index.js')}}"></script>
+{%endblock%}
 
-</html>
         

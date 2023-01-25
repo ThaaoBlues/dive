@@ -1,17 +1,16 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{url_for('static',filename='user_dashboard.css')}}">
-    
-    <title>Dive/User dashboard</title>
-</head>
-<body class="anim-bg">
 
-    <h1 class="txt-ctr">Select one of your servers</h1>
+
+{%extends "structure/base.html"%}
+
+{%block head%}
+<link rel="stylesheet" href="{{url_for('static',filename='user_dashboard.css')}}">
+<script src="{{url_for('static',filename='user_dashboard.js')}}"></script>
+<title>Dive/User Dashboard</title>
+{%endblock%}
+
+{%block body%}
+<h1 class="txt-ctr">Select one of your servers</h1>
     <div>
         <div id="settings_dropdown">
             <img class="settings-icon" id="settings_icon" src="https://icons.getbootstrap.com/assets/icons/sliders.svg"></img>
@@ -34,7 +33,7 @@
         {%endif%}
 
         {%for s in user_servers%}
-            <li onclick="window.location.href='/drive/{{s["id"]}}'" class="img-text server"><img widht="50px" height="50px" onclick="window.location.href='/drive/{{s["id"]}}'" src="{{s['icon_url']}}"></img>&nbsp;&nbsp;{{s["name"]}}</li>
+            <li onclick="window.location.href='/drive/{{s["id"]}}'" class="img-text server"><img widht="50px" height="50px" onclick="window.location.href='/drive/{{s["id"]}}'" src="{{s['icon_url']}}"></img>&nbsp;&nbsp;{{s["name"]}}&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;<a class="settings_icon" href="/settings/{{s['id']}}">Server settings</a></li>
         {%endfor%}
 
     </div>
@@ -55,9 +54,4 @@
     </script>
 
 <script type='text/javascript' src='//pl18335881.highcpmrevenuenetwork.com/7a/91/be/7a91bef1307f59131c2bc853ed067e01.js'></script>
-
-</body>
-
-<script src="{{url_for('static',filename='user_dashboard.js')}}"></script>
-
-</html>
+{%endblock%}

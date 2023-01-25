@@ -1,15 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='drive.css') }}">
-    <title>Dive/Drive</title>
-</head>
-<body class="anim-bg">
-    
+{%extends "structure/base.html"}
 
+
+{%block head%}
+<link rel="stylesheet" href="{{ url_for('static', filename='drive.css') }}">
+<title>Dive/Drive</title>
+{%endblock%}
+
+{%block body%}
     <div class="navbar zone">
         <button onclick="document.location.href='/login'">Go back to servers list</button>
     </div>
@@ -29,7 +26,7 @@
     <br>
     To follow what feature is being added next, you can check my <a href="https://www.github.com/thaaoblues/Dive">github</a>.
     <br>
-    As I'm still in college, updates are not following a schedule.
+    As I&quot;m still in college, updates are not following a schedule.
     </h4>
 
     <script type="text/javascript">
@@ -43,6 +40,4 @@
         document.write('<scr' + 'ipt type="text/javascript" src="http' + (location.protocol === 'https:' ? 's' : '') + '://www.effectivecreativeformat.com/e5d1d86e1d34cd78c9a461f5aa8af03e/invoke.js"></scr' + 'ipt>');
     </script>
     
-
-</body>
-</html>
+{%endblock%}

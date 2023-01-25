@@ -1,84 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='drive.css') }}">
-    <script src="{{ url_for('static', filename='files_preview.js') }}"></script>
-    <script src="{{ url_for('static', filename='drive.js') }}"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1211866699994753"
-    crossorigin="anonymous"></script>
-    <title>Dive/Channel content</title>
-</head>
-<body class="anim-bg">
+{%extends "structure/base.html"}
 
-    <div class="navbar zone">
-        <button onclick="window.history.back()">Back to channels list</button>
+{%block head%}
+<link rel="stylesheet" href="{{ url_for('static', filename='drive.css') }}">
+<script src="{{ url_for('static', filename='files_preview.js') }}"></script>
+<script src="{{ url_for('static', filename='drive.js') }}"></script>
+<title>Dive/Channel content</title>
+{%endblock%}
+
+{%block body%}
+
+<div class="navbar zone">
+    <button onclick="window.history.back()">Back to channels list</button>
+</div>
+
+<div class="files-grid zone">
+    <div>
+        <button onclick="document.location.href = document.location.pathname+'?page='+'{% if c_chunk > 1 %}{{c_chunk-1}}{%else%}{{c_chunk}}{%endif%}'">Previous Page</button>
+        <button onclick="document.location.href = document.location.pathname+'?page='+'{{c_chunk+1}}'">Next Page</button>
+        <h3>Page : {{c_chunk}}</h3>
     </div>
-
-    <div class="files-grid zone">
-        <div>
-            <button onclick="document.location.href = document.location.pathname+'?page='+'{% if c_chunk > 1 %}{{c_chunk-1}}{%else%}{{c_chunk}}{%endif%}'">Previous Page</button>
-            <button onclick="document.location.href = document.location.pathname+'?page='+'{{c_chunk+1}}'">Next Page</button>
-            <h3>Page : {{c_chunk}}</h3>
-        </div>
-        <table class="files-table">
-            
-            <tbody>
-                <tr>
-                    <th>Icon</th>
-                    <th>File name</th>
-                    <th>Upload date</th>
-                    <th>File version</th>
-                    <th>Action</th>
-                </tr>
-                {%for media in medias%}
-                    <tr id="media_entry_{{loop.index}}">
-                        <td><img class="file-btn" width="50" height="50" src="{{ url_for('static', filename='file-earmark.svg') }}" onclick="window.location.href='{{media['media_url']}}'" a></td>
-                        <td><a class="file-txt" href="{{media['media_url']}}">{{media["file_name"]}}</a></td>
-                        <td><b>{{media["date"].replace(" 00:00:00","")}}</b></td>
-                        <td style="text-align: center;"><b>{{media["version"]}}</b></td>
-                        <td>
-                            <div style="display: flex;">
-                                <form action="/edit/{{media['server_id']}}/{{media['channel_name']}}">
-                                    <input name="file_name" hidden value="{{media['file_name']}}">
-                                    <input name="file_url" hidden value="{{media['media_url']}}">
-                                    {%if media["media_url"].startswith("https://cdn.discordapp.com/")%}<button type="submit">Edit file</button>{%endif%}
-                                </form>
-                                
-                                <button onclick="delete_file('{{loop.index}}',{media_url:'{{media["media_url"]}}',version:{{media["version"]}},server_id:'{{media["server_id"]}}' });">Delete</button>
-    
-                            </div>
-
-                        </td>
-                    </tr>
-                {%endfor%}
-            </tbody>
-
-        </table>
-
-        <h3>Due to a sea of same file being repeatedly sent more than 30 times, we're setting a version limit of 30 each 180 days.</h3>
+    <table class="files-table">
         
-    </div>
-    <script type="text/javascript">
-        atOptions = {
-            'key' : 'e5d1d86e1d34cd78c9a461f5aa8af03e',
-            'format' : 'iframe',
-            'height' : 60,
-            'width' : 468,
-            'params' : {}
-        };
-        document.write('<scr' + 'ipt type="text/javascript" src="http' + (location.protocol === 'https:' ? 's' : '') + '://www.effectivecreativeformat.com/e5d1d86e1d34cd78c9a461f5aa8af03e/invoke.js"></scr' + 'ipt>');
-    </script>
+        <tbody>
+            <tr>
+                <th>Icon</th>
+                <th>File name</th>
+                <th>Upload date</th>
+                <th>File version</th>
+                <th>Action</th>
+            </tr>
+            {%for media in medias%}
+                <tr id="media_entry_{{loop.index}}">
+                    <td><img class="file-btn" width="50" height="50" src="{{ url_for('static', filename='file-earmark.svg') }}" onclick="window.location.href='{{media['media_url']}}'" a></td>
+                    <td><a class="file-txt" href="{{media['media_url']}}">{{media["file_name"]}}</a></td>
+                    <td><b>{{media["date"].replace(" 00:00:00","")}}</b></td>
+                    <td style="text-align: center;"><b>{{media["version"]}}</b></td>
+                    <td>
+                        <div style="display: flex;">
+                            <form action="/edit/{{media['server_id']}}/{{media['channel_name']}}">
+                                <input name="file_name" hidden value="{{media['file_name']}}">
+                                <input name="file_url" hidden value="{{media['media_url']}}">
+                                {%if media["media_url"].startswith("https://cdn.discordapp.com/")%}<button type="submit">Edit file</button>{%endif%}
+                            </form>
+                            
+                            <button onclick="delete_file('{{loop.index}}',{media_url:'{{media["media_url"]}}',version:{{media["version"]}},server_id:'{{media["server_id"]}}' });">Delete</button>
 
-    <script>
-        function delete_file(id,data){
-            send_event('/api/delete_media',data);
-            document.getElementById("media_entry_"+id).remove();
-        }
-    </script>
+                        </div>
+
+                    </td>
+                </tr>
+            {%endfor%}
+        </tbody>
+
+    </table>
+
+    <h3>Due to a sea of same file being repeatedly sent more than 30 times, we&quot;re setting a version limit of 30 each 180 days.</h3>
+    
+</div>
+<script type="text/javascript">
+    atOptions = {
+        'key' : 'e5d1d86e1d34cd78c9a461f5aa8af03e',
+        'format' : 'iframe',
+        'height' : 60,
+        'width' : 468,
+        'params' : {}
+    };
+    document.write('<scr' + 'ipt type="text/javascript" src="http' + (location.protocol === 'https:' ? 's' : '') + '://www.effectivecreativeformat.com/e5d1d86e1d34cd78c9a461f5aa8af03e/invoke.js"></scr' + 'ipt>');
+</script>
+
+<script>
+    function delete_file(id,data){
+        send_event('/api/delete_media',data);
+        document.getElementById("media_entry_"+id).remove();
+    }
+</script>
 
 
-</body>
-</html>
+{%endblock%}
+
