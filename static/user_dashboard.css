@@ -54,6 +54,14 @@ body{
     cursor: pointer;
 }
 
+.drive-link{
+    background-color: rgba(44, 44, 112, 0.747);
+    padding: 2px 6px 2px 2px;
+    text-decoration: none;
+    border-bottom: 2px solid black;
+    border-radius: 2px;
+}
+
 .right{
     text-align: right;
 }
