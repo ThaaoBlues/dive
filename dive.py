@@ -133,6 +133,7 @@ async def on_message(msg):
 
 @bot.event
 async def on_guild_join(guild):
+    db.register_server(guild.id,guild.name)
     await guild.system_channel.send(constants.bot_help["welcome_msg"].format(db.get_server_infos(guild.id)['img_auto_save']))
 
 @bot.event
