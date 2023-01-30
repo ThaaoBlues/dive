@@ -41,9 +41,11 @@
                                 <input name="file_name" hidden value="{{media['file_name']}}">
                                 <input name="file_url" hidden value="{{media['media_url']}}">
                                 {%if media["media_url"].startswith("https://cdn.discordapp.com/")%}<button type="submit">Edit file</button>{%endif%}
-                                <br>
-                                {%if media["proxy_url"] %} <button>Preview file</button> {%endif%}
                             </form>
+                            
+                            <br>
+                            {%if media["proxy_url"] %} <button onclick="window.open('{{media["proxy_url"]}}')">Preview file</button> {%endif%}
+
                             
                             <button onclick="delete_file('{{loop.index}}',{media_url:'{{media["media_url"]}}',version:{{media["version"]}},server_id:'{{media["server_id"]}}' });">Delete</button>
 
