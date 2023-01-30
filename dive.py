@@ -122,7 +122,12 @@ async def on_message(msg):
                     return
 
             # add this media to the medias table
-            db.add_media(msg.guild.id,media.url,msg.channel.name,media.filename)
+            db.add_media(msg.guild.id,
+            media.url,
+            msg.channel.name,
+            media.filename,
+            proxy_url=media.proxy_url,
+            content_type=media.content_type)
 
             await msg.channel.send(f"Saving this media into Dive : {media.filename}\n Dive URL : {constants.ovh['server_url']}/drive/{msg.guild.id}")
 

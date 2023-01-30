@@ -34,7 +34,7 @@ class DataBase():
         return self.db["servers"].find_one({"server_id":int(server_id)}) != None
 
 
-    def add_media(self,server_id:str,media_url:str,channel_name:str,file_name:str,version_limit=30):
+    def add_media(self,server_id:str,media_url:str,channel_name:str,file_name:str,proxy_url=None,content_type=None,version_limit=30):
         
 
 
@@ -43,7 +43,12 @@ class DataBase():
         
         # get the number of files with the same name already sent
         # to make versionning
-        count = self.db["medias"].find({"server_id":int(server_id),"channel_name":channel_name,"file_name":file_name},projection={'_id':True})
+        count = self.db["medias"].find({
+            "server_id":int(server_id),
+            "channel_name":channel_name,
+            "file_name":file_name
+            },projection={'_id':True})
+
         count = len(list(count))
 
         # check if we don't overpass version limit (30 copies by default)
@@ -54,6 +59,8 @@ class DataBase():
         self.db["medias"].insert_one({
             "server_id":server_id,
             "media_url":media_url,
+            "proxy_url": proxy_url,
+            "content_type": content_type,
             "channel_name":channel_name,
             "file_name":file_name,
             "date": date,
