@@ -116,11 +116,6 @@ async def on_message(msg):
 
         for media in msg.attachments:
             
-            # insert server into servers table if not already in it
-            if not db.server_registered(msg.guild.id):
-                db.register_server(msg.guild.id,msg.guild.name)
-            
-            
             # check if server has activated images auto save
             if not db.get_server_infos(msg.guild.id)["img_auto_save"]:
                 if media.filename.split(".")[1] in constants.IMG_EXT:
