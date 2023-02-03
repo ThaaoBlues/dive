@@ -53,7 +53,7 @@ class DataBase():
 
         # special version limit for images, 10 versions max
 
-        if "image" in content_type and count > constants.MAX_IMG_V:
+        if ("image" in content_type) and (count > constants.MAX_IMG_V):
             return
 
         # check if we don't overpass version limit (30 copies by default)
