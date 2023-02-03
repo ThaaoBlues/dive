@@ -34,7 +34,7 @@ class DataBase():
         return self.db["servers"].find_one({"server_id":int(server_id)}) != None
 
 
-    def add_media(self,server_id:str,media_url:str,channel_name:str,file_name:str,proxy_url=None,content_type=None,version_limit=30):
+    def add_media(self,server_id:str,media_url:str,channel_name:str,file_name:str,proxy_url=None,content_type=None):
         
 
 
@@ -51,8 +51,13 @@ class DataBase():
 
         count = len(list(count))
 
+        # special version limit for images, 10 versions max
+
+        if "image" in content_type and count > constants.MAX_IMG_V:
+            return
+
         # check if we don't overpass version limit (30 copies by default)
-        if count > version_limit:
+        if count > constants.MAX_FILE_V:
             return
 
 
