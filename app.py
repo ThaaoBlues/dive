@@ -244,6 +244,20 @@ def server_settings(server_id):
     return render_template("server_settings.html",server=server)
 
 
+# preview endpoints
+
+@application.route("/preview/video/<server_id>")
+def video_preview(server_id):
+
+    login_error = login_check(server_id)
+    if login_error:
+        return login_error
+    
+    url = request.args.get("url",default="")
+    content_type = request.args.get("content_type",default="")
+
+    return render_template("video_preview.html",url=url,content_type=content_type)
+
 
 
 @application.errorhandler(404)
