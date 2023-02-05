@@ -44,7 +44,22 @@
                             </form>
                             
                             <br>
-                            {%if media["proxy_url"] %} <button class="action-btn" onclick="window.open('{{media["proxy_url"]}}')">Preview file</button> {%endif%}
+                            {%if media["proxy_url"] %} 
+                            
+                            {%if "video" in media["content_type"]%}
+                                <form action="/preview/video/{{media["server_id"]}}" method="GET">
+                                    <input hidden name="url" value="{{media["proxy_url"]}}">
+                                    <input hidden name="content_type" value="{{media["content_type"]}}">
+                                    <button class="action-btn" name="proxy_url" proxy-url="{{media["proxy_url"]}}">Preview file</button> 
+                                </form>
+
+                            {%else%}
+                            
+                                <button class="action-btn" name="proxy_url" proxy-url="{{media["proxy_url"]}}" onclick="window.open('{{media["proxy_url"]}}')">Preview file</button> 
+                            
+                            {%endif%}
+
+                            {%endif%}
 
                             
                             <button class="action-btn" onclick="delete_file('{{loop.index}}',{media_url:'{{media["media_url"]}}',version:{{media["version"]}},server_id:'{{media["server_id"]}}' });">Delete</button>
@@ -77,6 +92,37 @@
         send_event('/api/delete_media',data);
         document.getElementById("media_entry_"+id).remove();
     }
+
+    function check_proxy_urls(){
+
+        // eliminate any proxy url that is not available anymore
+
+        document.getElementsByName("proxy_url").forEach(function(e){
+            let url = e.getAttribute("proxy-url");
+            var xhr = new XMLHttpRequest();
+
+            xhr.open("GET",url);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState === 4){
+                    if (xhr.status === 415) {  
+                        e.remove();
+                    }  
+                }
+            };
+
+            xhr.send();
+            
+        });
+    }
+
+    function display_video(url,content_type){
+        document.location.href = "/preview/video/"
+    }
+
+    check_proxy_urls();
+
+
+
 </script>
 
 
